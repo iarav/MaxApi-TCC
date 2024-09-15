@@ -1,11 +1,7 @@
 GET_ALL_FOCAL_QUESTIONS = "/getAllFocalQuestions"
 GET_FOCAL_QUESTION = "/getFocalQuestion"
-# def GET_FOCAL_QUESTION(focalQuestion):
-#     return f"/getFocalQuestion/{focalQuestion}"
-def SIGN_IN(code):
-    return f"/signIn/{code}"
-def USER_INPUT(code, userInput):
-    return f"/userInput/{code}/{userInput}"
+SIGN_IN = "/signIn"
+USER_INPUT = "/userInput"
 CREATE_CHAT = "/createChat"
 
 __all__ = [

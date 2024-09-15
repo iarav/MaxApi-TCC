@@ -24,7 +24,13 @@ To use it, it requires a configured PostgreSQL database called `max_chatbot`.
 
 ## Environment versions (venv):
 - Python 3.7.4
-    
+
+### Installing dependencies
+- pip install uvicorn   
+- pip install fastapi   
+- pip install sqlalchemy
+- pip install psycopg2
+
 ### Packages
 If there is any problem when executing the API, you can check the installed dependencies with the command `pip list`.<br>
 The necessary packages are:

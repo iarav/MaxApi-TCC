@@ -1,16 +1,29 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 from ..models.MCE import MCE
 from ..schemas.MCE import MCECreate
 
-def create_mce(db: Session, mce: MCECreate):
-    db_mce = MCE(
-        creation_date = mce.creation_date,
-        access_code = mce.access_code
-    )
-    db.add(mce)
-    db.commit()
-    db.refresh(mce)
-    return db_mce
+def createMCE(db: Session, mce: MCECreate):
+    try:
+        dbMCE = MCE(
+            creation_date = mce.creation_date,
+            update_date = mce.update_date,
+            access_code = mce.access_code,
+            agent_id = mce.agent_id,
+            elicitation_id = mce.elicitation_id
+        )
+        db.add(dbMCE)
+        db.commit()
+        db.refresh(dbMCE)
+        return dbMCE
+    except SQLAlchemyError as e:
+        db.rollback()
+        print(f"Error creating MCE: {e}")
+        return None
 
-def get_mce_by_access_code(db: Session, access_code: str):
-    return db.query(MCE).filter(MCE.access_code == access_code).first()
+def getMCEByAccessCode(db: Session, access_code: str):
+    try:
+        return db.query(MCE).filter(MCE.access_code == access_code).first()
+    except SQLAlchemyError as e:
+        print(f"Error retrieving MCE by access code: {e}")
+        return None

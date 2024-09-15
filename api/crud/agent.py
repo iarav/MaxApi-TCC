@@ -9,8 +9,8 @@ def getAgentByEmail(db: Session, email: str):
     return db.query(Agent).filter(Agent.email == email).first()
 
 def createAgent(db: Session, agent: AgentCreate):
-    db_agent = Agent(email=agent.email, name=agent.name)
-    db.add(db_agent)
+    dbAgent = Agent(email=agent.email, name=agent.name)
+    db.add(dbAgent)
     db.commit()
-    db.refresh(db_agent)
-    return db_agent
+    db.refresh(dbAgent)
+    return dbAgent

@@ -9,13 +9,16 @@ def getElicitationByFocalQuestion(db: Session, focalQuestion: str):
     return db.query(Elicitation).filter(Elicitation.focal_question == focalQuestion).first()
 
 def createElicitation(db: Session, elicitation: ElicitationCreate):
-    db_elicitation = Elicitation(
+    print(elicitation)
+    if(elicitation.agent == None or elicitation.concept == None or elicitation.domain == None):
+        return None
+    dbElicitation = Elicitation(
         focal_question=elicitation.focal_question,
         agent=elicitation.agent,
         concept=elicitation.concept,
         domain=elicitation.domain
     )
-    db.add(db_elicitation)
+    db.add(dbElicitation)
     db.commit()
-    db.refresh(db_elicitation)
-    return db_elicitation
+    db.refresh(dbElicitation)
+    return dbElicitation

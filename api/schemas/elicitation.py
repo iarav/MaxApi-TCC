@@ -14,11 +14,11 @@ class Elicitation(ElicitationBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class ElicitationStatus(ElicitationBase):
     id: Optional[int]
     isRegistered: bool = True
 
     class Config:
-        orm_mode = True
+        from_attributes = True

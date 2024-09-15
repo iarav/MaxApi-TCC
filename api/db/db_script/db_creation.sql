@@ -21,8 +21,8 @@ CREATE TABLE Elicitation (
 -- Creating the MCE table
 CREATE TABLE MCE (
     id SERIAL PRIMARY KEY,
+    access_code VARCHAR(20) UNIQUE NOT NULL,
     creation_date TIMESTAMP NOT NULL,
-    access_code VARCHAR(20) NOT NULL,
     update_date TIMESTAMP,
     agent_id INT,
     elicitation_id INT,

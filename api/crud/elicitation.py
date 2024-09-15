@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from ..models.elicitation import Elicitation
-from ..schemas.elicitation import ElicitationCreate
+from ..models.Elicitation import Elicitation
+from ..schemas.Elicitation import ElicitationCreate
 
 def getElicitations(db: Session, skip: int = 0, limit: int = 10):
     return db.query(Elicitation).offset(skip).limit(limit).all()

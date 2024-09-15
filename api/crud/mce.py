@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from ..models.mce import MCE
-from ..schemas.mce import MCECreate
+from ..models.MCE import MCE
+from ..schemas.MCE import MCECreate
 
 def create_mce(db: Session, mce: MCECreate):
     db_mce = MCE(

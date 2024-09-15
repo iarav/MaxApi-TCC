@@ -18,5 +18,6 @@ def read_focalquestion(focalQuestion: str, db: Session = Depends(getDBSession)):
         raise HTTPException(status_code=404, detail="focalQuestion not received as param")
     elicitation = crud_elicitation.getElicitationByFocalQuestion(db, focalQuestion)
     if not elicitation:
+        # TODO - Criar lógica para criar agente, conceito e dominio quando não existir a QF ainda
         raise HTTPException(status_code=404, detail="Elicitation not found")
     return elicitation

@@ -26,6 +26,7 @@ def create_chat(
     db_elicitation = crud_elicitation.create_elicitation(db, elicitation=focal_question)
     
     access_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+    # TODO - verificar se código existe e se existir, gerar outro
     mce = schema_mce.MCECreate(
         access_code=access_code,
         creation_date=datetime.utcnow(),
@@ -57,7 +58,7 @@ def send_input(access_code: str, user_input: str, db: Session = Depends(getDBSes
     if not mce:
         raise HTTPException(status_code=404, detail="Access code not found")
     
-    # Aqui você processaria o input do usuário com um chatbot
+    # TODO - Aqui você processaria o input do usuário com um chatbot
     chatbot_response = f"Resposta do chatbot para o input: {user_input}"
     
     return {"message": "Success", "response": chatbot_response}

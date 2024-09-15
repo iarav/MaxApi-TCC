@@ -1,10 +1,10 @@
 from fastapi import FastAPI
-from .db import engine, Base
-from .endpoints import focalquestions, chat
+from .db import Engine, Base
+from .endpoints import FocalQuestions, Chat
 
-Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=Engine)
 
 app = FastAPI()
 
-app.include_router(focalquestions.router, prefix="/api/focalquestions", tags=["focalquestions"])
-app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
+app.include_router(FocalQuestions.router, prefix="/api/focalQuestion", tags=["focalQuestion"])
+app.include_router(Chat.router, prefix="/api/chat", tags=["chat"])

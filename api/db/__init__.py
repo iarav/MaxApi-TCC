@@ -1,8 +1,8 @@
-from .engine import DatabaseEngineManager
-from .session import getDBSession
-from .base import DatabaseBase
+from .Engine import DatabaseEngineManager
+from .Session import getDBSession
+from .Base import DatabaseBase
 
-engine = DatabaseEngineManager().getEngine()
+Engine = DatabaseEngineManager().getEngine()
 Base = DatabaseBase.getBaseForDBModel()
 
-__all__ = ["engine", "getDBSession", "Base"]
+__all__ = ["Engine", "getDBSession", "Base"]

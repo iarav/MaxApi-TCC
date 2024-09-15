@@ -15,3 +15,10 @@ class Elicitation(ElicitationBase):
 
     class Config:
         orm_mode = True
+
+class ElicitationStatus(ElicitationBase):
+    id: Optional[int]
+    isRegistered: bool = True
+
+    class Config:
+        orm_mode = True

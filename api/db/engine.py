@@ -1,5 +1,8 @@
 from sqlalchemy import create_engine
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class _DatabaseConfig:
     def __init__(self):

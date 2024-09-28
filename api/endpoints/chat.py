@@ -11,6 +11,7 @@ from ..db import getDBSession
 import random 
 import string
 from .EndpointsURL import (CREATE_CHAT, SIGN_IN, USER_INPUT)
+from ..chatbot.MaxResponses import MaxResponses
 
 router = APIRouter()
 
@@ -64,7 +65,12 @@ def process_user_input(access_code: str, user_input: str, db: Session = Depends(
     if not mce:
         raise HTTPException(status_code=404, detail="Access code not found")
     
+    chatbot_response = ""
+    if(user_input == ""):
+        chatbot_response = MaxResponses.greeting(mce.agent.name.capitalize())
+    else:
+        chatbot_response = f"Resposta do chatbot para o input: {user_input}"
+        
     # TODO - Aqui você processaria o input do usuário com um chatbot
-    chatbot_response = f"Resposta do chatbot para o input: {user_input}"
     
     return {"message": "Success", "response": chatbot_response}

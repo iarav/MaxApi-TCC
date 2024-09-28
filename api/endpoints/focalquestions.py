@@ -6,7 +6,7 @@ from ..crud import Elicitation as crudElicitation
 from ..schemas import Elicitation as schemaElicitation
 from ..db import getDBSession
 from .EndpointsURL import (GET_ALL_FOCAL_QUESTIONS, GET_FOCAL_QUESTION)
-from ..chatbot import ExtractFocalQuestionEntities
+from ..chatbot.ExtractFocalQuestionEntities import EntityExtractor
 
 router = APIRouter()
 
@@ -27,7 +27,7 @@ def getFocalQuestion(focalQuestion: str, db: Session = Depends(getDBSession)):
     try:
         elicitation = crudElicitation.getElicitationByFocalQuestion(db, focalQuestion)
         
-        entities = ExtractFocalQuestionEntities.extractEntitiesFocalQuestion(focalQuestion)
+        entities = EntityExtractor().extractEntities(focalQuestion=focalQuestion)
         print(entities)
         
         if not elicitation:

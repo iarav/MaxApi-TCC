@@ -1,0 +1,161 @@
+{
+	"info": {
+		"_postman_id": "0c68c90a-123d-44f5-88f5-a1f49cbcadd4",
+		"name": "MAX - Chatbot - TCC",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23856737"
+	},
+	"item": [
+		{
+			"name": "getFocalQuestion",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/focalQuestion/getFocalQuestion?focalQuestion=O que você pensa sobre o autoconhecimento no contexto de sucesso?",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"focalQuestion",
+						"getFocalQuestion"
+					],
+					"query": [
+						{
+							"key": "focalQuestion",
+							"value": "O que você pensa sobre o autoconhecimento no contexto de sucesso?"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getAllFocalQuestions",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/focalQuestion/getAllFocalQuestions",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"focalQuestion",
+						"getAllFocalQuestions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createChat",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "    {\r\n        \"focalQuestion\": {\r\n            \"focal_question\": \"Your focal question here2\",\r\n            \"agent\": \"your\",\r\n            \"concept\": \"focal question\",\r\n            \"domain\": \"here\"\r\n\r\n        },\r\n        \"agent\": {\r\n            \"email\": \"agent@example.com\",\r\n            \"name\": \"Agent Name\"\r\n        }\r\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/chat/createChat",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"chat",
+						"createChat"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "signin",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/chat/signIn?access_code=abcdef",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"chat",
+						"signIn"
+					],
+					"query": [
+						{
+							"key": "access_code",
+							"value": "abcdef"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "useriput",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/chat/userInput?access_code=111111&user_input=Olá, tudo bem?",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"chat",
+						"userInput"
+					],
+					"query": [
+						{
+							"key": "access_code",
+							"value": "111111"
+						},
+						{
+							"key": "user_input",
+							"value": "Olá, tudo bem?"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

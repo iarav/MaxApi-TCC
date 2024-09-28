@@ -32,7 +32,7 @@ def getFocalQuestion(focalQuestion: str, db: Session = Depends(getDBSession)):
         
         if not elicitation:
             # TODO - Criar lógica para criar agente, conceito e dominio quando não existir a QF ainda   
-            elicitation = schemaElicitation.ElicitationStatus(focal_question=focalQuestion, agent=None, concept=None, domain=None, id=None, isRegistered=False)
+            elicitation = schemaElicitation.ElicitationStatus(focal_question=focalQuestion, agent=entities['AGENT'], concept=entities['CONCEPT'], domain=entities['DOMAIN'], id=None, isRegistered=False)
         else:
             elicitation.isRegistered = True
         return elicitation

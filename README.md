@@ -15,8 +15,17 @@ To use it, it requires a configured PostgreSQL database called `max_chatbot`.
   `source venv/bin/activate`
 - Run the following command to install all the requirements:
   `pip install -r requirements.txt` 
-- Run this command to execute the API:<br>
+- Run this command to execute the API (Before this, follow Configuring Database steps):<br>
 `uvicorn api.main:app --reload` 
+
+### Install this dependencies if `pip install -r requirements.txt` does not work, run:
+- pip install python-dotenv
+- pip install uvicorn
+- pip install fastapi
+- pip install sqlalchemy
+- pip install psycopg2
+- pip install spacy
+- python -m spacy download pt_core_news_sm
 
 ## Configuring Database:
 1. Create a PostgreSQL database called `max_chatbot`.

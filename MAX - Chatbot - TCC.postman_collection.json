@@ -94,6 +94,36 @@
 			"response": []
 		},
 		{
+			"name": "getAllChatHistory",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/chat/getAllChatHistory?access_code=111111",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"chat",
+						"getAllChatHistory"
+					],
+					"query": [
+						{
+							"key": "access_code",
+							"value": "111111"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "useriput",
 			"request": {
 				"method": "POST",

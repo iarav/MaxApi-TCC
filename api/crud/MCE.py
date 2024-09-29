@@ -18,12 +18,15 @@ def createMCE(db: Session, mce: MCECreate):
         return dbMCE
     except SQLAlchemyError as e:
         db.rollback()
-        print(f"Error creating MCE: {e}")
-        return None
+        return {"error": f"Error creating MCE: {e}"}
+    except Exception as e:
+        db.rollback()
+        return {"error": f"Unexpected error: {e}"}
 
 def getMCEByAccessCode(db: Session, access_code: str):
     try:
         return db.query(MCE).filter(MCE.access_code == access_code).first()
     except SQLAlchemyError as e:
-        print(f"Error retrieving MCE by access code: {e}")
-        return None
+        return {"error": f"Error retrieving MCE by access code: {e}"}
+    except Exception as e:
+        return {"error": f"Unexpected error: {e}"}

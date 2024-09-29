@@ -27,11 +27,8 @@ def getFocalQuestion(focalQuestion: str, db: Session = Depends(getDBSession)):
     try:
         elicitation = crudElicitation.getElicitationByFocalQuestion(db, focalQuestion)
         
-        entities = EntityExtractor().extractEntities(focalQuestion=focalQuestion)
-        print(entities)
-        
         if not elicitation:
-            # TODO - Criar lógica para criar agente, conceito e dominio quando não existir a QF ainda   
+            entities = EntityExtractor().extractEntities(focalQuestion=focalQuestion) 
             elicitation = schemaElicitation.ElicitationStatus(focal_question=focalQuestion, agent=entities['AGENT'], concept=entities['CONCEPT'], domain=entities['DOMAIN'], id=None, isRegistered=False)
         else:
             elicitation.isRegistered = True

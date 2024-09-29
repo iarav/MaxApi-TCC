@@ -49,3 +49,13 @@ CREATE TABLE Concept_Relation (
     FOREIGN KEY (concept1_id) REFERENCES Concept(id),
     FOREIGN KEY (concept2_id) REFERENCES Concept(id)
 );
+
+-- Creating the Chat_History table
+CREATE TABLE Chat_History (
+    id SERIAL PRIMARY KEY,
+    message TEXT NOT NULL,
+    sender VARCHAR(10) CHECK (sender IN ('chatbot', 'agent')) NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    mce_id INT,
+    FOREIGN KEY (mce_id) REFERENCES MCE(id)
+);

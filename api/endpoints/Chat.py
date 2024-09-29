@@ -6,6 +6,7 @@ from ..crud import MCE as crudBase
 from ..schemas import Agent as schemaAgent
 from ..schemas import Elicitation as schemaElicitation
 from ..schemas import MCE as schemaMCE
+from ..schemas import Chat as schemaChat
 from datetime import datetime
 from ..db import getDBSession
 import random 
@@ -59,17 +60,17 @@ def sign_in(access_code: str, db: Session = Depends(getDBSession)):
         raise HTTPException(status_code=401, detail="Unauthorized - invalid Access code")
     return {"message": "Success", "access_code": access_code}
 
-@router.get(USER_INPUT)
-def process_user_input(access_code: str, user_input: str, db: Session = Depends(getDBSession)):
-    mce = crudBase.getMCEByAccessCode(db, access_code=access_code)
+@router.post(USER_INPUT, response_model=dict)
+def process_user_input(user_data: schemaChat.CreateUserInput, db: Session = Depends(getDBSession)):
+    mce = crudBase.getMCEByAccessCode(db, access_code=user_data.access_code)
     if not mce:
         raise HTTPException(status_code=404, detail="Access code not found")
     
     chatbot_response = ""
-    if(user_input == ""):
+    if user_data.user_input == "":
         chatbot_response = MaxResponses.greeting(mce.agent.name.capitalize())
     else:
-        chatbot_response = f"Resposta do chatbot para o input: {user_input}"
+        chatbot_response = f"Resposta do chatbot para o input: {user_data.user_input}"
         
     # TODO - Aqui você processaria o input do usuário com um chatbot
     

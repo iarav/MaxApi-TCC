@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "0c68c90a-123d-44f5-88f5-a1f49cbcadd4",
 		"name": "MAX - Chatbot - TCC",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
 		"_exporter_id": "23856737"
 	},
 	"item": [
@@ -41,22 +41,7 @@
 			"request": {
 				"method": "GET",
 				"header": [],
-				"url": {
-					"raw": "http://127.0.0.1:8000/api/focalQuestion/getAllFocalQuestions",
-					"protocol": "http",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"focalQuestion",
-						"getAllFocalQuestions"
-					]
-				}
+				"url": "http://127.0.0.1:8000/api/focalQuestion/getAllFocalQuestions"
 			},
 			"response": []
 		},
@@ -74,22 +59,7 @@
 						}
 					}
 				},
-				"url": {
-					"raw": "http://127.0.0.1:8000/api/chat/createChat",
-					"protocol": "http",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"chat",
-						"createChat"
-					]
-				}
+				"url": "http://127.0.0.1:8000/api/chat/createChat"
 			},
 			"response": []
 		},
@@ -126,34 +96,18 @@
 		{
 			"name": "useriput",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
-				"url": {
-					"raw": "http://127.0.0.1:8000/api/chat/userInput?access_code=111111&user_input=Olá, tudo bem?",
-					"protocol": "http",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"chat",
-						"userInput"
-					],
-					"query": [
-						{
-							"key": "access_code",
-							"value": "111111"
-						},
-						{
-							"key": "user_input",
-							"value": "Olá, tudo bem?"
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"access_code\":\"111111\",\r\n    \"user_input\":\"\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
 						}
-					]
-				}
+					}
+				},
+				"url": "http://127.0.0.1:8000/api/chat/userInput"
 			},
 			"response": []
 		}

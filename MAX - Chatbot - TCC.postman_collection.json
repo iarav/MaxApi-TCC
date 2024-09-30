@@ -12,7 +12,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/focalQuestion/getFocalQuestion?focalQuestion=O que você pensa sobre o autoconhecimento no contexto de sucesso?",
+					"raw": "http://127.0.0.1:8000/api/focalQuestion/getFocalQuestion?focalQuestion=Qual opnião você tem sobre carros no ambiente escolar?",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -29,7 +29,7 @@
 					"query": [
 						{
 							"key": "focalQuestion",
-							"value": "O que você pensa sobre o autoconhecimento no contexto de sucesso?"
+							"value": "Qual opnião você tem sobre carros no ambiente escolar?"
 						}
 					]
 				}
@@ -52,7 +52,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "    {\r\n        \"focalQuestion\": {\r\n            \"focal_question\": \"Your focal question here2\",\r\n            \"agent\": \"your\",\r\n            \"concept\": \"focal question\",\r\n            \"domain\": \"here\"\r\n\r\n        },\r\n        \"agent\": {\r\n            \"email\": \"agent@example.com\",\r\n            \"name\": \"Agent Name\"\r\n        }\r\n    }",
+					"raw": "    {\r\n        \"focalQuestion\": {\r\n            \"focal_question\": \"Qual opnião você tem sobre carros no ambiente escolar?\",\r\n            \"agent\": \"você\",\r\n            \"concept\": \"carros\",\r\n            \"domain\": \"ambiente escolar\"\r\n\r\n        },\r\n        \"agent\": {\r\n            \"email\": \"teste@example.com\",\r\n            \"name\": \"teste Name\"\r\n        }\r\n    }",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -69,7 +69,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/chat/signIn?access_code=abcdef",
+					"raw": "http://127.0.0.1:8000/api/chat/signIn?access_code=AUMUOQ",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -86,7 +86,7 @@
 					"query": [
 						{
 							"key": "access_code",
-							"value": "abcdef"
+							"value": "AUMUOQ"
 						}
 					]
 				}
@@ -130,7 +130,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"access_code\":\"111111\",\r\n    \"user_input\":\"\"\r\n}",
+					"raw": "{\r\n    \"access_code\":\"111111\",\r\n    \"user_input\":\"Oi\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"

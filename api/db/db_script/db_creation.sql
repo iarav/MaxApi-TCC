@@ -17,7 +17,6 @@ CREATE TABLE Elicitation (
     domain VARCHAR(20)
 );
 
-
 -- Creating the MCE table
 CREATE TABLE MCE (
     id SERIAL PRIMARY KEY,
@@ -56,6 +55,7 @@ CREATE TABLE Chat_History (
     message TEXT NOT NULL,
     sender VARCHAR(10) CHECK (sender IN ('chatbot', 'agent')) NOT NULL,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    step VARCHAR(20) NOT NULL, 
     mce_id INT,
     FOREIGN KEY (mce_id) REFERENCES MCE(id)
 );

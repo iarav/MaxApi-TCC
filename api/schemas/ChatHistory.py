@@ -5,6 +5,7 @@ from typing import Optional
 class ChatHistoryBase(BaseModel):
     message: str
     sender: str
+    step: str
     mce_id: int
 
 class ChatHistoryCreate(ChatHistoryBase):

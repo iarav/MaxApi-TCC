@@ -9,11 +9,12 @@ from ..schemas import Agent as schemaAgent
 from ..schemas import Elicitation as schemaElicitation
 from ..schemas import MCE as schemaMCE
 from ..schemas import Chat as schemaChat
-from ..chatbot.MaxResponses import MaxResponses
+from ..chatbot.MaxBot import MaxBot
 from datetime import datetime
 import random
 import string
 from typing import List, Dict, Any
+from ..chatbot.MaxElicitationSteps import Steps, getPreviousStep
 
 def createChatbot(
     focalQuestion: schemaElicitation.ElicitationCreate,
@@ -53,9 +54,11 @@ def getAllChatHistory(access_code: str, db: Session) -> List[schemaChatHistory.C
 def generateChatbotResponseByUserInput(user_data: schemaChat.CreateUserInput, db: Session) -> Dict[str, Any]:
     try:
         mce = _getMCE(user_data.access_code, db=db)
-        chatHistory = _getChatHistory(mce, db=db)
-        chatbot_response = _generateChatResponse(user_data, mce, chatHistory)
-        _registerChatHistory(user_data.user_input, chatbot_response, db=db, mceId=mce.id)
+        response, precessedUserInput = _generateChatResponse(db, user_data, mce)
+        chatbot_response, step = response
+        if step is None:
+            raise HTTPException(status_code=400, detail=chatbot_response)
+        _registerChatHistory(precessedUserInput, chatbot_response, step, db=db, mceId=mce.id)
         return {"message": "Success", "response": chatbot_response}
     except Exception as e:
         _handleException(e)
@@ -71,21 +74,43 @@ def _getChatHistory(mce: schemaMCE.MCE, db: Session) -> List[schemaChatHistory.C
     _handleError(chatHistory)
     return chatHistory
 
-def _generateChatResponse(user_data: schemaChat.CreateUserInput, mce: schemaMCE.MCE, chatHistory: List[schemaChatHistory.ChatHistory]) -> str:
-    if user_data.user_input == "":
-        return MaxResponses.greeting(mce.agent.name.capitalize())
-    return f"Resposta do chatbot para o input: {user_data.user_input}"
+def _generateChatResponse(db: Session, user_data: schemaChat.CreateUserInput, mce: schemaMCE.MCE) -> str:
+    chatbot = MaxBot()
+    message = user_data.user_input
+    lastStepMessages = crudChatHistory.getLastStepMessagesByMCE(db, mce.id)
+    _handleError(lastStepMessages)
+    if len(lastStepMessages) > 0 and lastStepMessages[-1].step == Steps.STEP_TWO.value:
+        message = _processResponse(message)
+    elicitation = crudElicitation.getElicitationById(db, mce.elicitation_id)
+    _handleError(elicitation)
+    return chatbot.sendMessage(message, mce, elicitation, lastStepMessages), message
 
-def _registerChatHistory(userInput: str, chatbot_response: str, db: Session, mceId: int) -> None:
+def _processResponse(message):
+    responsesA = ['a', 'a.', 'a:', 'alternativa a', 'letra a']
+    responsesB = ['b', 'b.', 'b:', 'alternativa b', 'letra b']
+    
+    response = message.strip().lower()
+    
+    if response in responsesA:
+        return "A"
+    elif response in responsesB:
+        return "B"
+    else:
+        raise HTTPException(status_code=400, detail="Invalid response. Please, answer with A or B")
+
+
+def _registerChatHistory(userInput: str, chatbot_response: str, step: str, db: Session, mceId: int) -> None:
     if userInput:
-        _addMessageToHistory(userInput, "agent", db, mceId)
+        previousStep = getPreviousStep(step)
+        _addMessageToHistory(userInput, "agent", previousStep, db, mceId)
     if chatbot_response:
-        _addMessageToHistory(chatbot_response, "chatbot", db, mceId)
+        _addMessageToHistory(chatbot_response, "chatbot", step, db, mceId)
 
-def _addMessageToHistory(message: str, sender: str, db: Session, mceId: int) -> None:
+def _addMessageToHistory(message: str, sender: str, step: str, db: Session, mceId: int) -> None:
     chatHistoryCreate = schemaChatHistory.ChatHistoryCreate(
         message=message,
         sender=sender,
+        step=step,
         mce_id=mceId
     )
     response = crudChatHistory.addMessageToHistory(db, chatHistory=chatHistoryCreate)

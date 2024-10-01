@@ -14,6 +14,12 @@ def getElicitationByFocalQuestion(db: Session, focalQuestion: str):
         return db.query(Elicitation).filter(Elicitation.focal_question == focalQuestion).first()
     except SQLAlchemyError as e:
         return {"error": str(e)}
+    
+def getElicitationById(db: Session, elicitation_id: int):
+    try:
+        return db.query(Elicitation).filter(Elicitation.id == elicitation_id).first()
+    except SQLAlchemyError as e:
+        return {"error": str(e)}
 
 def createElicitation(db: Session, elicitation: ElicitationCreate):
     try:

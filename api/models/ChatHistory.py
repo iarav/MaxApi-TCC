@@ -10,6 +10,7 @@ class ChatHistory(Base):
     message = Column(Text, nullable=False)
     sender = Column(String(10), nullable=False)
     timestamp = Column(DateTime, default=datetime.utcnow)
+    step = Column(String(20), nullable=False)
     mce_id = Column(Integer, ForeignKey("mce.id"))
 
     mce = relationship("MCE")

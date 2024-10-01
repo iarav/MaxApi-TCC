@@ -9,6 +9,7 @@ def addMessageToHistory(db: Session, chatHistory: ChatHistoryCreate):
         new_message = ChatHistory(
             message=chatHistory.message,
             sender=chatHistory.sender,
+            step=chatHistory.step,
             mce_id=chatHistory.mce_id,
             timestamp=datetime.now(timezone.utc)
         )
@@ -28,5 +29,26 @@ def getMessageHistoryByMCE(db: Session, mce_id: int):
         return db.query(ChatHistory).filter(ChatHistory.mce_id == mce_id).order_by(ChatHistory.timestamp).all()
     except SQLAlchemyError as e:
         return {"error": f"Error retrieving message history: {e}"}
+    except Exception as e:
+        return {"error": f"Unexpected error: {e}"}
+    
+def getLastStepMessagesByMCE(db: Session, mce_id: int):
+    try:
+        mostRecentStep = db.query(ChatHistory).filter(ChatHistory.mce_id == mce_id).order_by(ChatHistory.timestamp.desc()).first()
+        if mostRecentStep:
+            mostRecentStep = mostRecentStep.step
+            return db.query(ChatHistory).filter(ChatHistory.mce_id == mce_id, ChatHistory.step == mostRecentStep).order_by(ChatHistory.timestamp).all()
+        else:
+            return []
+    except SQLAlchemyError as e:
+        return {"error": f"Error retrieving last step messages: {e}"}
+    except Exception as e:
+        return {"error": f"Unexpected error: {e}"}
+
+def getMessagesByStepAndSender(db: Session, mce_id: int, step: str, sender: str):
+    try:
+        return db.query(ChatHistory).filter(ChatHistory.mce_id == mce_id, ChatHistory.step == step, ChatHistory.sender == sender).order_by(ChatHistory.timestamp).all()
+    except SQLAlchemyError as e:
+        return {"error": f"Error retrieving messages by step and sender: {e}"}
     except Exception as e:
         return {"error": f"Unexpected error: {e}"}

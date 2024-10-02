@@ -22,3 +22,6 @@ class ElicitationStatus(ElicitationBase):
 
     class Config:
         from_attributes = True
+
+class FocalQuestionBase(BaseModel):
+    focalQuestion: str

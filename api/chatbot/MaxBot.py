@@ -1,7 +1,6 @@
 
 from .MaxResponses import MaxResponses
 from .MaxElicitationSteps import Steps, getNextStep
-from ..crud.ChatHistory import getMessagesByStepAndSender
 
 class MaxBot:
     def __init__(self):
@@ -14,7 +13,7 @@ class MaxBot:
     def getNameMeaning(self):
         return self.nameMeaning
     
-    def sendMessage(self, message, mce = None, elicitation = None, lastStepMessages = None):
+    def sendMessage(self, message, mce = None, elicitation = None, lastStepMessages = None, stepTwoUserResponse = None):
         if message == "" and len(lastStepMessages) == 0:
             return self._stepOne(mce, elicitation), Steps.STEP_ONE
         else:
@@ -28,9 +27,7 @@ class MaxBot:
                 elif lastStep == Steps.STEP_TWO.value:
                     return self._stepThree(elicitation, message, False), nextStep
                 elif lastStep == Steps.STEP_THREE_P1.value:
-                    messages = getMessagesByStepAndSender(mce.id, Steps.STEP_TWO.value, "agent")
-                    initialPosicioning = messages[-1].message
-                    return self._stepThree(elicitation, initialPosicioning, True), nextStep
+                    return self._stepThree(elicitation, stepTwoUserResponse, True), nextStep
                 else:
                     return MaxResponses.unknown(), None
             else:

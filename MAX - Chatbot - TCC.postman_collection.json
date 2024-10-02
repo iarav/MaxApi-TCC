@@ -9,30 +9,18 @@
 		{
 			"name": "getFocalQuestion",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
-				"url": {
-					"raw": "http://127.0.0.1:8000/api/focalQuestion/getFocalQuestion?focalQuestion=Qual opnião você tem sobre carros no ambiente escolar?",
-					"protocol": "http",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"focalQuestion",
-						"getFocalQuestion"
-					],
-					"query": [
-						{
-							"key": "focalQuestion",
-							"value": "Qual opnião você tem sobre carros no ambiente escolar?"
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"focalQuestion\": \"Qual opnião você tem sobre carros no ambiente escolar?\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
 						}
-					]
-				}
+					}
+				},
+				"url": "http://127.0.0.1:8000/api/focalQuestion/getFocalQuestion"
 			},
 			"response": []
 		},
@@ -130,7 +118,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"access_code\":\"111111\",\r\n    \"user_input\":\"Oi\"\r\n}",
+					"raw": "{\r\n    \"access_code\":\"111111\",\r\n    \"user_input\":\"sim\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"

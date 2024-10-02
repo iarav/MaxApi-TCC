@@ -23,8 +23,9 @@ def getAllFocalQuestions(skip: int = 0, limit: int = 10, db: Session = Depends(g
     except Exception as e:
         _handleException(e, "Unexpected error")
 
-@router.get(GET_FOCAL_QUESTION, response_model=schemaElicitation.ElicitationStatus)
-def getFocalQuestion(focalQuestion: str, db: Session = Depends(getDBSession)):
+@router.post(GET_FOCAL_QUESTION, response_model=schemaElicitation.ElicitationStatus)
+def getFocalQuestion(focalQuestionParam: schemaElicitation.FocalQuestionBase, db: Session = Depends(getDBSession)):
+    focalQuestion = focalQuestionParam.focalQuestion
     if not focalQuestion:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="param 'focalQuestion' not received")
     try:

@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Text, ForeignKey
-from db import Base
+from ..db import Base
 
 class Concept(Base):
     __tablename__ = "concept"

@@ -3,7 +3,9 @@ from sqlalchemy.orm import Session
 from ..crud import Agent as crudAgent
 from ..crud import Elicitation as crudElicitation
 from ..crud import MCE as crudBase
+from ..crud import Concept as crudConcept
 from ..crud import ChatHistory as crudChatHistory
+from ..schemas import Concept as schemaConcept
 from ..schemas import ChatHistory as schemaChatHistory
 from ..schemas import Agent as schemaAgent
 from ..schemas import Elicitation as schemaElicitation
@@ -15,6 +17,7 @@ import random
 import string
 from typing import List, Dict, Any
 from ..chatbot.MaxElicitationSteps import Steps, getPreviousStep
+from ..chatbot.BeliefMatrix import BeliefMatrix, getBeliefByAnswer
 
 def createChatbot(
     focalQuestion: schemaElicitation.ElicitationCreate,
@@ -23,13 +26,10 @@ def createChatbot(
 ) -> schemaMCE.MCE:
     try:
         dbAgent = _createAgentIfNotExists(db, agent)
-        _handleError(dbAgent)
         dbElicitation = _createElicitationIfNotExists(db, focalQuestion)
-        _handleError(dbElicitation)
         accessCode = _generateAccessCode(db)
-        _handleError(accessCode)
+        _createConcept(db, schemaConcept.ConceptCreate(name=focalQuestion.concept, mce_id=mce.id))
         mce = _createMCE(db, accessCode, dbAgent.id, dbElicitation.id)
-        _handleError(mce)
         return mce
     except Exception as e:
         _handleException(e)
@@ -79,11 +79,18 @@ def _generateChatResponse(db: Session, user_data: schemaChat.CreateUserInput, mc
     message = user_data.user_input
     lastStepMessages = crudChatHistory.getLastStepMessagesByMCE(db, mce.id)
     _handleError(lastStepMessages)
-    if len(lastStepMessages) > 0 and lastStepMessages[-1].step == Steps.STEP_TWO.value:
-        message = _processResponse(message)
     elicitation = crudElicitation.getElicitationById(db, mce.elicitation_id)
     _handleError(elicitation)
-    return chatbot.sendMessage(message, mce, elicitation, lastStepMessages), message
+    if len(lastStepMessages) > 0 and lastStepMessages[-1].step == Steps.STEP_TWO.value:
+        message = _processResponse(message)
+    stepTwoUserResponse = None
+    if lastStepMessages[-1].step == Steps.STEP_THREE_P1.value:
+        stepTwoUserResponse = crudChatHistory.getMessagesByStepAndSender(db, mce.id, Steps.STEP_TWO.value, "agent")
+        _processStepThreeResponse(message, stepTwoUserResponse[-1].message, elicitation.concept, mce.id, False, db)
+    if lastStepMessages[-1].step == Steps.STEP_THREE_P2.value:
+        stepTwoUserResponse = crudChatHistory.getMessagesByStepAndSender(db, mce.id, Steps.STEP_TWO.value, "agent")
+        _processStepThreeResponse(message, stepTwoUserResponse[-1].message, elicitation.concept, mce.id, True, db)
+    return chatbot.sendMessage(message, mce, elicitation, lastStepMessages, stepTwoUserResponse[-1].message), message
 
 def _processResponse(message):
     responsesA = ['a', 'a.', 'a:', 'alternativa a', 'letra a']
@@ -118,6 +125,7 @@ def _addMessageToHistory(message: str, sender: str, step: str, db: Session, mceI
 
 def _createAgentIfNotExists(db: Session, agent: schemaAgent.AgentCreate) -> schemaAgent.Agent:
     dbAgent = crudAgent.getAgentByEmail(db, email=agent.email)
+    _handleError(dbAgent)
     if not dbAgent:
         dbAgent = crudAgent.createAgent(db, agent=agent)
         _handleError(dbAgent)
@@ -129,12 +137,14 @@ def _createElicitationIfNotExists(db: Session, focalQuestion: schemaElicitation.
         dbElicitation = crudElicitation.createElicitation(db, elicitation=focalQuestion)
         if not dbElicitation:
             raise HTTPException(status_code=400, detail="The params agent, concept, and domain must be provided in the body, inside the focal question")
+    _handleError(dbElicitation)
     return dbElicitation
 
 def _generateAccessCode(db: Session) -> str:
     accessCode = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
     while crudBase.getMCEByAccessCode(db, access_code=accessCode):
         accessCode = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+    _handleError(accessCode)
     return accessCode
 
 def _createMCE(db: Session, accessCode: str, agentId: int, elicitationId: int) -> schemaMCE.MCE:
@@ -149,6 +159,27 @@ def _createMCE(db: Session, accessCode: str, agentId: int, elicitationId: int) -
     dbMCE = crudBase.createMCE(db, mce=mce)
     _handleError(dbMCE)
     return dbMCE
+
+def _createConcept(db: Session, concept: schemaConcept.ConceptCreate) -> schemaConcept.Concept:
+    dbConcept = crudConcept.getConceptByMCEAndName(db, mce_id=concept.mce_id, name=concept.name)
+    if not dbConcept:
+        dbConcept = crudConcept.createConcept(db, concept=concept)
+        _handleError(dbConcept)
+    return dbConcept
+
+def _processStepThreeResponse(message: str, initialPosicioning: str, concept: str, mce_id: int, firstQuestionAsked: bool,db: Session) -> str:
+    possibleResponses = ["sim", "talvez", "não", "nao", "n", "s"]
+    if message.lower() in possibleResponses:
+        concept = crudConcept.getConceptByMCEAndName(db, mce_id=mce_id, name=concept)
+        if not concept:
+            raise HTTPException(status_code=404, detail="Concept not found")
+        if (initialPosicioning == "A" and firstQuestionAsked == False) or (initialPosicioning == "B" and firstQuestionAsked == True):
+            concept.behavioral_belief = getBeliefByAnswer(message)
+        elif initialPosicioning == "B":
+            concept.normative_belief = getBeliefByAnswer(message)
+        crudConcept.editConcept(db, concept=concept)
+    else:
+        raise HTTPException(status_code=400, detail="Invalid response. Please, answer with 'sim', 'talvez' or 'não'")
 
 def _handleError(response: Any) -> None:
     if isinstance(response, dict) and response.get("error"):

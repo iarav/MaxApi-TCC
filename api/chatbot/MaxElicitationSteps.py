@@ -2,6 +2,7 @@
 from enum import Enum
 
 class Steps(Enum):
+    STEP_UNKNOWN = "STEP_UNKNOWN"
     STEP_ONE = "STEP_ONE"
     STEP_TWO = "STEP_TWO"
     STEP_THREE_P1 = "STEP_THREE_P1"

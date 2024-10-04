@@ -3,9 +3,9 @@ from sqlalchemy.exc import SQLAlchemyError
 from ..models.Concept import Concept
 from ..schemas.Concept import ConceptCreate
 
-def getConceptByMCEAndName(db: Session, mce_id: int, name: str):
+def getConceptByMCEAndName(db: Session, mceId: int, name: str):
     try:
-        return db.query(Concept).filter(Concept.mce_id == mce_id, Concept.name == name).first()
+        return db.query(Concept).filter(Concept.mce_id == mceId, Concept.name == name).first()
     except SQLAlchemyError as e:
         return {"error": f"Error retrieving concept: {e}"}
     except Exception as e:

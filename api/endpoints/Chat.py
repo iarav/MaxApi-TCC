@@ -6,7 +6,8 @@ from ..schemas import MCE as schemaMCE
 from ..schemas import Chat as schemaChat
 from ..db import getDBSession
 from .EndpointsURL import (CREATE_CHAT, SIGN_IN, USER_INPUT, GET_ALL_CHAT_HISTORY)
-from ..services.ChatService import generateChatbotResponseByUserInput, getAllChatHistory, signInAgent, createChatbot
+from ..services.ChatService import getAllChatHistory, signInAgent, createChatbot
+from ..services.ChatbotResponseService import generateChatbotResponseByUserInput
 
 router = APIRouter()
 

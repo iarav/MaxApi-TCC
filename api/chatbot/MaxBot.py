@@ -18,7 +18,7 @@ class MaxBot:
             return self._stepOne(mce, elicitation), Steps.STEP_ONE
         else:
             if message == "":
-                return MaxResponses.unknown(), None
+                return MaxResponses.unknown(), Steps.STEP_UNKNOWN
             if len(lastStepMessages) > 0:
                 lastStep = lastStepMessages[-1].step
                 nextStep = getNextStep(lastStep)
@@ -28,8 +28,10 @@ class MaxBot:
                     return self._stepThree(elicitation, message, False), nextStep
                 elif lastStep == Steps.STEP_THREE_P1.value:
                     return self._stepThree(elicitation, stepTwoUserResponse, True), nextStep
+                elif lastStep == Steps.STEP_THREE_P2.value:
+                    return self._stepThree(elicitation, stepTwoUserResponse, True), nextStep
                 else:
-                    return MaxResponses.unknown(), None
+                    return MaxResponses.unknown(), Steps.STEP_UNKNOWN
             else:
                 return "To beggin the chat, send an empty string as user_input", None
             
@@ -40,7 +42,6 @@ class MaxBot:
     
     def _stepTwo(self, elicitation):
         response = MaxResponses.goingDeeper() + MaxResponses.makingInitialPosicioning(elicitation.agent, elicitation.concept, elicitation.domain)
-        print(response)
         return response
     
     def _stepThree(self, elicitation, initialPosicioning, firstQuestionAsked):

@@ -1,12 +1,12 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-from ..models.ChatHistory import ChatHistory
+from ..models.ChatHistory import ChatHistory as ChatHistoryModel
 from ..schemas.ChatHistory import ChatHistoryCreate
 from datetime import datetime, timezone
 
 def addMessageToHistory(db: Session, chatHistory: ChatHistoryCreate):
     try:
-        new_message = ChatHistory(
+        new_message = ChatHistoryModel(
             message=chatHistory.message,
             sender=chatHistory.sender,
             step=chatHistory.step,
@@ -26,7 +26,7 @@ def addMessageToHistory(db: Session, chatHistory: ChatHistoryCreate):
 
 def getMessageHistoryByMCE(db: Session, mce_id: int):
     try:
-        return db.query(ChatHistory).filter(ChatHistory.mce_id == mce_id).order_by(ChatHistory.timestamp).all()
+        return db.query(ChatHistoryModel).filter(ChatHistoryModel.mce_id == mce_id).order_by(ChatHistoryModel.timestamp).all()
     except SQLAlchemyError as e:
         return {"error": f"Error retrieving message history: {e}"}
     except Exception as e:
@@ -34,10 +34,10 @@ def getMessageHistoryByMCE(db: Session, mce_id: int):
     
 def getLastStepMessagesByMCE(db: Session, mce_id: int):
     try:
-        mostRecentStep = db.query(ChatHistory).filter(ChatHistory.mce_id == mce_id).order_by(ChatHistory.timestamp.desc()).first()
+        mostRecentStep = db.query(ChatHistoryModel).filter(ChatHistoryModel.mce_id == mce_id).order_by(ChatHistoryModel.timestamp.desc()).first()
         if mostRecentStep:
             mostRecentStep = mostRecentStep.step
-            return db.query(ChatHistory).filter(ChatHistory.mce_id == mce_id, ChatHistory.step == mostRecentStep).order_by(ChatHistory.timestamp).all()
+            return db.query(ChatHistoryModel).filter(ChatHistoryModel.mce_id == mce_id, ChatHistoryModel.step == mostRecentStep).order_by(ChatHistoryModel.timestamp).all()
         else:
             return []
     except SQLAlchemyError as e:
@@ -47,7 +47,7 @@ def getLastStepMessagesByMCE(db: Session, mce_id: int):
 
 def getMessagesByStepAndSender(db: Session, mce_id: int, step: str, sender: str):
     try:
-        return db.query(ChatHistory).filter(ChatHistory.mce_id == mce_id, ChatHistory.step == step, ChatHistory.sender == sender).order_by(ChatHistory.timestamp).all()
+        return db.query(ChatHistoryModel).filter(ChatHistoryModel.mce_id == mce_id, ChatHistoryModel.step == step, ChatHistoryModel.sender == sender).order_by(ChatHistoryModel.timestamp).all()
     except SQLAlchemyError as e:
         return {"error": f"Error retrieving messages by step and sender: {e}"}
     except Exception as e:

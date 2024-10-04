@@ -1,4 +1,5 @@
 from enum import Enum
+from .ResponseProcesser import YesMaybeOrNotResponses
 
 class BeliefMatrix(Enum):
     NAO_CONTROLAVEL = "NAO_CONTROLAVEL"
@@ -6,9 +7,10 @@ class BeliefMatrix(Enum):
     PENUMBRA = "PENUMBRA"
 
 def getBeliefByAnswer(answer: str) -> str:
-    if answer == "sim" or answer == "s":
+    print("Answer: ", answer)
+    if answer == YesMaybeOrNotResponses.YES.value:
         return BeliefMatrix.CONTROLAVEL.value
-    elif answer == "talvez":
+    elif answer == YesMaybeOrNotResponses.MAYBE.value:
         return BeliefMatrix.PENUMBRA.value
-    elif answer == "nao" or answer == "n" or answer == "não":
+    elif answer == YesMaybeOrNotResponses.NOT.value:
         return BeliefMatrix.NAO_CONTROLAVEL.value

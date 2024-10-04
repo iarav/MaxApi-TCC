@@ -1,6 +1,7 @@
 
 from .MaxResponses import MaxResponses
 from .MaxElicitationSteps import Steps, getNextStep
+from .ResponseProcesser import AlternativeResponses
 
 class MaxBot:
     def __init__(self):
@@ -22,6 +23,7 @@ class MaxBot:
             if len(lastStepMessages) > 0:
                 lastStep = lastStepMessages[-1].step
                 nextStep = getNextStep(lastStep)
+                print("Last step: ", lastStep)
                 if lastStep == Steps.STEP_ONE.value:
                     return self._stepTwo(elicitation), nextStep
                 elif lastStep == Steps.STEP_TWO.value:
@@ -29,7 +31,7 @@ class MaxBot:
                 elif lastStep == Steps.STEP_THREE_P1.value:
                     return self._stepThree(elicitation, stepTwoUserResponse, True), nextStep
                 elif lastStep == Steps.STEP_THREE_P2.value:
-                    return self._stepThree(elicitation, stepTwoUserResponse, True), nextStep
+                    return "This step should not be reached", Steps.STEP_UNKNOWN
                 else:
                     return MaxResponses.unknown(), Steps.STEP_UNKNOWN
             else:
@@ -46,8 +48,8 @@ class MaxBot:
     
     def _stepThree(self, elicitation, initialPosicioning, firstQuestionAsked):
         response = ""
-        if (initialPosicioning == "A" and firstQuestionAsked == False) or (initialPosicioning == "B" and firstQuestionAsked == True):
+        if (initialPosicioning == AlternativeResponses.A.value and firstQuestionAsked == False) or (initialPosicioning == AlternativeResponses.B.value and firstQuestionAsked == True):
             response = MaxResponses.determineComportamentalBelieve(elicitation.agent.capitalize(), elicitation.concept, elicitation.domain)
-        elif initialPosicioning == "B":
+        else:
             response = MaxResponses.normativeBelieve(elicitation.concept.capitalize(), elicitation.domain)
         return response

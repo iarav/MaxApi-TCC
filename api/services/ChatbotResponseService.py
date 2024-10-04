@@ -12,6 +12,7 @@ from ..chatbot.MaxBot import MaxBot
 from ..chatbot.MaxElicitationSteps import Steps, getPreviousStep
 from ..chatbot.BeliefMatrix import getBeliefByAnswer
 from ..helper.ErrorHandler import handleException, handleError
+from ..chatbot.ResponseProcesser import ResponseProcesser, AlternativeResponses
 
 def generateChatbotResponseByUserInput(userData: SchemaChat.CreateUserInput, db: Session) -> Dict[str, Any]:
     try:
@@ -33,40 +34,27 @@ def generateChatbotResponseByUserInput(userData: SchemaChat.CreateUserInput, db:
 def _generateChatResponse(db: Session, userData: SchemaChat.CreateUserInput, mce: SchemaMCE.MCE) -> tuple:
     chatbot = MaxBot()
     message = userData.user_input.strip().lower()
-    
+    processedStepTwoMessage = None
+    processedMessage = message
+
     lastStepMessages = CrudChatHistory.getLastStepMessagesByMCE(db, mce.id)
     handleError(lastStepMessages)
 
     elicitation = CrudElicitation.getElicitationById(db, mce.elicitation_id)
     handleError(elicitation)
 
-    if lastStepMessages and lastStepMessages[-1].step == Steps.STEP_TWO.value:
-        message = _processResponse(message)
+    if lastStepMessages and len(lastStepMessages):
+        if lastStepMessages[-1].step == Steps.STEP_TWO.value:
+            processedMessage = ResponseProcesser().processAlternativeQuestion(message)
 
-    stepTwoUserResponse = None
-    if lastStepMessages:
-        if lastStepMessages[-1].step == Steps.STEP_THREE_P1.value:
+        if lastStepMessages[-1].step == Steps.STEP_THREE_P1.value or lastStepMessages[-1].step == Steps.STEP_THREE_P2.value:
             stepTwoUserResponse = CrudChatHistory.getMessagesByStepAndSender(db, mce.id, Steps.STEP_TWO.value, "agent")
-            _processStepThreeResponse(message, stepTwoUserResponse[-1].message, elicitation.concept, mce.id, False, db)
-        elif lastStepMessages[-1].step == Steps.STEP_THREE_P2.value:
-            stepTwoUserResponse = CrudChatHistory.getMessagesByStepAndSender(db, mce.id, Steps.STEP_TWO.value, "agent")
-            _processStepThreeResponse(message, stepTwoUserResponse[-1].message, elicitation.concept, mce.id, True, db)
+            stepTwoUserResponse = stepTwoUserResponse[-1].message if stepTwoUserResponse else None
+            processedStepTwoMessage = ResponseProcesser().processAlternativeQuestion(stepTwoUserResponse)
+            firstQuestionAsked = lastStepMessages[-1].step == Steps.STEP_THREE_P2.value
+            processedMessage = _processStepThreeResponse(message, processedStepTwoMessage, elicitation.concept, mce.id, firstQuestionAsked, db)
 
-    stepTwoUserResponseMessage = stepTwoUserResponse[-1].message if stepTwoUserResponse else None
-    return chatbot.sendMessage(message, mce, elicitation, lastStepMessages, stepTwoUserResponseMessage), message
-
-def _processResponse(message: str) -> str:
-    validResponses = {
-        "a": "A", "a.": "A", "a:": "A", "alternativa a": "A", "letra a": "A",
-        "b": "B", "b.": "B", "b:": "B", "alternativa b": "B", "letra b": "B"
-    }
-
-    response = message.strip().lower()
-    if response in validResponses:
-        return validResponses[response]
-    else:
-        # TODO - Add a way to handle this error as answer not exception
-        raise HTTPException(status_code=400, detail="Invalid response. Please, answer with A or B")
+    return chatbot.sendMessage(processedMessage, mce, elicitation, lastStepMessages, processedStepTwoMessage), message
 
 def _registerChatHistory(userInput: str, chatbotResponse: str, step: str, db: Session, mceId: int) -> None:
     previousStep = getPreviousStep(step)
@@ -77,20 +65,18 @@ def _registerChatHistory(userInput: str, chatbotResponse: str, step: str, db: Se
         ChatHistoryRepository.addMessageToHistory(db, chatbotResponse, "chatbot", step, mceId)
 
 def _processStepThreeResponse(message: str, initialPositioning: str, concept: str, mceId: int, firstQuestionAsked: bool, db: Session) -> None:
-    validResponses = {"sim", "talvez", "não", "nao", "n", "s"}
-    
-    if message.lower() in validResponses:
-        conceptObj = CrudConcept.getConceptByMCEAndName(db, mceId=mceId, name=concept)
-        if not conceptObj:
-            raise HTTPException(status_code=404, detail="Concept not found")
+    processedMessage = ResponseProcesser().processYesMaybeOrNotQuestion(message)
+    conceptObj = CrudConcept.getConceptByMCEAndName(db, mceId=mceId, name=concept)
+    if not conceptObj:
+        handleException("Concept not found")
 
-        if (initialPositioning == "A" and not firstQuestionAsked) or (initialPositioning == "B" and firstQuestionAsked):
-            conceptObj.behavioralBelief = getBeliefByAnswer(message)
-        elif initialPositioning == "B":
-            conceptObj.normativeBelief = getBeliefByAnswer(message)
-
-        # TODO - make this edit work correctly
-        CrudConcept.editConcept(db, concept=conceptObj)
+    belief = getBeliefByAnswer(processedMessage)
+    print("Belief: ", belief)
+    if (initialPositioning == AlternativeResponses.A.value and not firstQuestionAsked) or (initialPositioning == AlternativeResponses.B.value and firstQuestionAsked):
+        conceptObj.behavioral_belief = belief
     else:
-        # TODO - Add a way to handle this error as answer not exception
-        raise HTTPException(status_code=400, detail="Invalid response. Please, answer with 'sim', 'talvez' or 'não'")
+        conceptObj.normative_belief = belief
+
+    # TODO - make this edit work correctly
+    CrudConcept.editConcept(db, concept=conceptObj)
+    return processedMessage

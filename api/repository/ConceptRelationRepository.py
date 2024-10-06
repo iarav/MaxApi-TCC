@@ -16,7 +16,6 @@ class ConceptRelationRepository:
         handleError(dbConceptRelationJoinConcept)
         if not dbConceptRelationJoinConcept:
             return None
-        print(dbConceptRelationJoinConcept)
         conceptRelation, concept1, concept2 = dbConceptRelationJoinConcept
         conceptRelationWithConcepts = schemaConceptRelation.ConceptRelationWithConcepts(
             concept1_id=conceptRelation.concept1_id,

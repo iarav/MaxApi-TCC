@@ -56,7 +56,6 @@ def createConceptRelation(db: Session, conceptRelation: ConceptRelationCreate):
 def editConceptRelation(db: Session, conceptRelation: ConceptRelationCreate):
     try:
         dbConceptRelation = db.query(ConceptRelation).filter(ConceptRelation.concept1_id == conceptRelation.concept1_id, ConceptRelation.concept2_id == conceptRelation.concept2_id).first()
-        print(dbConceptRelation.relation_weight)
         if dbConceptRelation:
             dbConceptRelation.relation_weight = conceptRelation.relation_weight
             db.commit()

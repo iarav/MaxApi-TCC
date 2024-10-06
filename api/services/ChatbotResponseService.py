@@ -18,7 +18,7 @@ from ..chatbot.MaxBot import MaxBot
 from ..chatbot.MaxElicitationSteps import Steps, getPreviousStep
 from ..chatbot.BeliefMatrix import getBeliefByAnswer
 from ..helper.ErrorHandler import handleException, handleError
-from ..chatbot.ResponseProcessor import ResponseProcessor, AlternativeResponses
+from ..chatbot.ResponseProcessor import ResponseProcessor, AlternativeResponses, YesMaybeOrNotResponses
 from ..chatbot.MaxBotProperties import MaxBotProperties
 
 def generateChatbotResponseByUserInput(userData: SchemaChat.CreateUserInput, db: Session) -> Dict[str, Any]:
@@ -67,12 +67,12 @@ def _generateChatResponse(db: Session, userData: SchemaChat.CreateUserInput, mce
     currentConcept = CrudConcept.getMostRecentConceptByMCE(db, mce.id)
     handleError(currentConcept)
 
-    processedMessage, secondConcept, processedStepTwoMessage = _handleSteps(db, message, lastStepMessages, elicitation, mce, currentConcept)
+    processedMessage, secondConcept, processedStepTwoMessage, currentConceptRelationWithConcepts = _handleSteps(db, message, lastStepMessages, elicitation, mce, currentConcept)
 
     if isinstance(processedMessage, dict) and processedMessage.get("error"):
         return processedMessage.get("error"), Steps.STEP_UNKNOWN
 
-    maxBotProperties = MaxBotProperties(message=processedMessage, mce=mce, elicitation=elicitation, currentConcept=currentConcept, lastStepMessages=lastStepMessages, stepTwoUserResponse=processedStepTwoMessage, secondConcept=secondConcept)
+    maxBotProperties = MaxBotProperties(message=processedMessage, mce=mce, elicitation=elicitation, currentConcept=currentConcept, lastStepMessages=lastStepMessages, stepTwoUserResponse=processedStepTwoMessage, secondConcept=secondConcept, currentConceptRelationWithConcepts=currentConceptRelationWithConcepts)
     
     return chatbot.sendMessage(properties=maxBotProperties)
 
@@ -80,6 +80,8 @@ def _handleSteps(db: Session, message: str, lastStepMessages: list, elicitation:
     processedMessage = message
     secondConcept = None
     processedStepTwoMessage = None
+    currentConceptRelationWithConcepts = None
+    error = False
     if lastStepMessages and len(lastStepMessages):
         lastStep = lastStepMessages[-1].step
         if lastStep == Steps.STEP_TWO.value:
@@ -107,25 +109,50 @@ def _handleSteps(db: Session, message: str, lastStepMessages: list, elicitation:
                     handleError(secondConceptRelation)
             elif lastStep == Steps.STEP_FOUR.value:
                 secondConceptData = _createConcept(db, processedMessage, mce.id)
-                if isinstance(processedMessage, dict) and processedMessage.get("error"):
-                    return processedMessage.get("error"), Steps.STEP_UNKNOWN
-                if secondConceptData:
+                if isinstance(secondConceptData, dict) and secondConceptData.get("error"):
+                    processedMessage = secondConceptData
+                    error = True
+                if (not error) and secondConceptData:
                     secondConceptRelation = _createConceptRelation(db, currentConcept, secondConceptData)
                 
-            if secondConceptRelation:
-                secondConcept = SchemaConcept.ConceptWithRelation(
-                    id=secondConceptData.id,
-                    name=secondConceptData.name,
-                    behavioral_belief=secondConceptData.behavioral_belief,
-                    normative_belief=secondConceptData.normative_belief,
-                    mce_id=secondConceptData.mce_id,
-                    relation_verb=secondConceptRelation.relation_verb,
-                    relation_weight=secondConceptRelation.relation_weight,
-                    concept1_id=secondConceptRelation.concept1_id,
-                    concept2_id=secondConceptRelation.concept2_id
-                )
+            if not error:    
+                if secondConceptRelation:
+                    secondConcept = SchemaConcept.ConceptWithRelation(
+                        id=secondConceptData.id,
+                        name=secondConceptData.name,
+                        behavioral_belief=secondConceptData.behavioral_belief,
+                        normative_belief=secondConceptData.normative_belief,
+                        mce_id=secondConceptData.mce_id,
+                        relation_verb=secondConceptRelation.relation_verb,
+                        relation_weight=secondConceptRelation.relation_weight,
+                        concept1_id=secondConceptRelation.concept1_id,
+                        concept2_id=secondConceptRelation.concept2_id
+                    )
+                
+                currentConceptRelationWithConcepts = ConceptRelationRepository.getCurrentConceptRelationAndConceptsByMCE(db, mce.id)
         
-    return processedMessage, secondConcept, processedStepTwoMessage
+        if lastStep == Steps.STEP_FIVE.value:
+            relationWeight = None
+            currentConceptRelationWithConcepts = ConceptRelationRepository.getCurrentConceptRelationAndConceptsByMCE(db, mce.id)
+            if not currentConceptRelationWithConcepts:
+                raise HTTPException(status_code=500, detail="Error finding concept relation")
+            processedMessage = ResponseProcessor().processYesOrNotQuestion(processedMessage)
+            if isinstance(processedMessage, dict) and processedMessage.get("error"):
+                error = True
+            if not error:
+                if processedMessage == YesMaybeOrNotResponses.YES.value:
+                    relationWeight = "+"
+                elif processedMessage == YesMaybeOrNotResponses.NOT.value:
+                    relationWeight = "-"
+                if relationWeight:
+                    conceptRelation = SchemaConceptRelation.ConceptRelationCreate(
+                        concept1_id=currentConceptRelationWithConcepts.concept1_id,
+                        concept2_id=currentConceptRelationWithConcepts.concept2_id,
+                        relation_weight=relationWeight
+                    )
+                    ConceptRelationRepository.addRelationWeightToConceptRelation(db, conceptRelation)
+            
+    return processedMessage, secondConcept, processedStepTwoMessage, currentConceptRelationWithConcepts
 
 def _processStepThreeResponse(message: str, initialPositioning: str, concept: str, mceId: int, firstQuestionAsked: bool, db: Session) -> None:
     processedMessage = ResponseProcessor().processYesMaybeOrNotQuestion(message)

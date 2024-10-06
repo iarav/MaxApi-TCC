@@ -3,6 +3,7 @@ from .MaxResponses import MaxResponses
 from .MaxElicitationSteps import Steps, getNextStep
 from .ResponseProcessor import AlternativeResponses
 from .MaxBotProperties import MaxBotProperties
+from fastapi import HTTPException
 class MaxBot:
     def __init__(self):
         self.name = "MAX"
@@ -15,7 +16,7 @@ class MaxBot:
         return self.nameMeaning
     
     def sendMessage(self, properties: MaxBotProperties):
-        message, mce, elicitation, currentConcept, lastStepMessages, stepTwoUserResponse, secondConcept = properties.getProperties()
+        message, mce, elicitation, currentConcept, lastStepMessages, stepTwoUserResponse, secondConcept, currentConceptRelationWithConcepts = properties.getProperties()
         if message == "" and len(lastStepMessages) == 0:
             return self._stepOne(mce, elicitation), Steps.STEP_ONE
         else:
@@ -41,8 +42,15 @@ class MaxBot:
                     if secondConcept is None:
                         return self._stepFour(concept), Steps.STEP_FOUR.value
                     else:
-                        if secondConcept.relation_verb is None and secondConcept.relation_weight is None:
-                            return self._stepFive(), Steps.STEP_FIVE.value
+                        if secondConcept.relation_verb is None and secondConcept.relation_weight is None:   
+                            concept1 = None
+                            concept2 = None    
+                            if currentConceptRelationWithConcepts:
+                                concept1 = currentConceptRelationWithConcepts.concept1_name
+                                concept2 = currentConceptRelationWithConcepts.concept2_name
+                            else:
+                                raise HTTPException(status_code=500, detail="Error finding concept relation")
+                            return self._stepFive(concept1, concept2), Steps.STEP_FIVE.value
                         else:
                             return self._stepSix(), Steps.STEP_SIX.value
                 elif nextStep == Steps.STEP_FIVE.value:
@@ -74,8 +82,9 @@ class MaxBot:
         response = MaxResponses.secondConcept(concept)
         return response
     
-    def _stepFive(self):
-        return "Step five not developed yet"
+    def _stepFive(self, concept1, concept2):
+        response = MaxResponses.defineRelationWeight(concept1, concept2)
+        return response
     
     def _stepSix(self):
         return "Step six not developed yet"

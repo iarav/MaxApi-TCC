@@ -1,6 +1,7 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 from sqlalchemy.exc import SQLAlchemyError
 from ..models.ConceptRelation import ConceptRelation
+from ..models.Concept import Concept
 from ..schemas.ConceptRelation import ConceptRelationCreate
 
 def getConceptRelationByConceptIds(db: Session, concept1_id: int = None, concept2_id: int = None):
@@ -13,6 +14,21 @@ def getConceptRelationByConceptIds(db: Session, concept1_id: int = None, concept
             return db.query(ConceptRelation).filter(ConceptRelation.concept2_id == concept2_id).order_by(ConceptRelation.concept2_id).first()
         else:
             return None
+    except SQLAlchemyError as e:
+        return {"error": f"Error retrieving concept relation: {e}"}
+    except Exception as e:
+        return {"error": f"Unexpected error: {e}"}
+    
+def getMostRecentConceptRelationByMCE(db: Session, mce_id: int):
+    try:
+        concept1 = aliased(Concept)
+        concept2 = aliased(Concept)
+        return db.query(ConceptRelation, concept1, concept2).\
+            join(concept1, ConceptRelation.concept1_id == concept1.id).\
+            join(concept2, ConceptRelation.concept2_id == concept2.id).\
+            filter(concept1.mce_id == mce_id).\
+            order_by(concept1.id.desc(), concept2.id.desc()).\
+            first()
     except SQLAlchemyError as e:
         return {"error": f"Error retrieving concept relation: {e}"}
     except Exception as e:
@@ -40,8 +56,8 @@ def createConceptRelation(db: Session, conceptRelation: ConceptRelationCreate):
 def editConceptRelation(db: Session, conceptRelation: ConceptRelationCreate):
     try:
         dbConceptRelation = db.query(ConceptRelation).filter(ConceptRelation.concept1_id == conceptRelation.concept1_id, ConceptRelation.concept2_id == conceptRelation.concept2_id).first()
+        print(dbConceptRelation.relation_weight)
         if dbConceptRelation:
-            dbConceptRelation.relation_verb = conceptRelation.relation_verb
             dbConceptRelation.relation_weight = conceptRelation.relation_weight
             db.commit()
             db.refresh(dbConceptRelation)

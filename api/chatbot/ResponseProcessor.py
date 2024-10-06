@@ -31,6 +31,21 @@ class ResponseProcessor():
             return self.response
         else:
             return {"error": f"Por favor, responda com 'sim', 'talvez' ou 'não'. Sua resposta foi: {message}"}
+        
+    def processYesOrNotQuestion(self, message: str) -> str:
+        validYesResponses = {"sim", "s"}
+        validNotResponses = {"não", "nao", "n"}
+        validResponses = validYesResponses.union(validNotResponses)
+
+        response = message.strip().lower()
+        if response in validResponses:
+            if response in validYesResponses:
+                self.response = YesMaybeOrNotResponses.YES.value
+            elif response in validNotResponses:
+                self.response = YesMaybeOrNotResponses.NOT.value
+            return self.response
+        else:
+            return {"error": f"Por favor, responda com 'sim' ou 'não'. Sua resposta foi: {message}"}
     
     def processAlternativeQuestion(self, message: str) -> str:
         validAResponses = {"a", "a.", "a:", "alternativa a", "letra a"}

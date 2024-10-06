@@ -13,3 +13,12 @@ class ConceptRelationCreate(ConceptRelationBase):
 class ConceptRelation(ConceptRelationBase):
     class Config:
         from_attributes = True
+        
+class ConceptRelationWithConcepts(ConceptRelationBase):
+    concept1_name: Optional[str] = None
+    concept2_name: Optional[str] = None
+    concept1_behavioral_belief: Optional[str] = None
+    concept1_normative_belief: Optional[str] = None
+    concept2_behavioral_belief: Optional[str] = None
+    concept2_normative_belief: Optional[str] = None
+    mce_id: Optional[int] = None

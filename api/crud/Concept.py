@@ -34,6 +34,14 @@ def getMostRecentConceptByMCE(db: Session, mceId: int):
         return {"error": f"Error retrieving most recent concept: {e}"}
     except Exception as e:
         return {"error": f"Unexpected error: {e}"}
+    
+def getConceptById(db: Session, conceptId: int):
+    try:
+        return db.query(Concept).filter(Concept.id == conceptId).first()
+    except SQLAlchemyError as e:
+        return {"error": f"Error retrieving concept: {e}"}
+    except Exception as e:
+        return {"error": f"Unexpected error: {e}"}
 
 def createConcept(db: Session, concept: ConceptCreate):
     try:

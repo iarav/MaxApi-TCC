@@ -10,7 +10,7 @@ class AlternativeResponses(Enum):
     A = "A"
     B = "B"
 
-class ResponseProcesser():
+class ResponseProcessor():
     def __init__(self):
         self.response = None
 
@@ -30,8 +30,7 @@ class ResponseProcesser():
                 self.response = YesMaybeOrNotResponses.NOT.value
             return self.response
         else:
-            # TODO - Add a way to handle this error as answer not exception
-            raise HTTPException(status_code=400, detail="Invalid response. Please, answer with Yes, Maybe or Not")
+            return {"error": f"Por favor, responda com 'sim', 'talvez' ou 'não'. Sua resposta foi: {message}"}
     
     def processAlternativeQuestion(self, message: str) -> str:
         validAResponses = {"a", "a.", "a:", "alternativa a", "letra a"}
@@ -46,6 +45,22 @@ class ResponseProcesser():
                 self.response = AlternativeResponses.B.value
             return self.response
         else:
-            # TODO - Add a way to handle this error as answer not exception
-            print("Invalid response. Please, answer with A or B, message: " + message)
-            raise HTTPException(status_code=400, detail="Invalid response. Please, answer with A or B")
+            return {"error": f"Por favor, responda com 'A' ou 'B'. Sua resposta foi: {message}"}
+    
+    def processAlternativeABCQuestion(self, message: str) -> str:
+        validAResponses = {"a", "a.", "a:", "alternativa a", "letra a"}
+        validBResponses = {"b", "b.", "b:", "alternativa b", "letra b"}
+        validCResponses = {"c", "c.", "c:", "alternativa c", "letra c"}
+        validResponses = validAResponses.union(validBResponses).union(validCResponses)
+
+        response = message.strip().lower()
+        if response in validResponses:
+            if response in validAResponses:
+                self.response = AlternativeResponses.A.value
+            elif response in validBResponses:
+                self.response = AlternativeResponses.B.value
+            elif response in validCResponses:
+                self.response = AlternativeResponses.C.value
+            return self.response
+        else:
+            return {"error": f"Por favor, responda com 'A', 'B' ou 'C'. Sua resposta foi: {message}"}

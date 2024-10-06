@@ -1,8 +1,8 @@
 
 from .MaxResponses import MaxResponses
 from .MaxElicitationSteps import Steps, getNextStep
-from .ResponseProcesser import AlternativeResponses
-
+from .ResponseProcessor import AlternativeResponses
+from .MaxBotProperties import MaxBotProperties
 class MaxBot:
     def __init__(self):
         self.name = "MAX"
@@ -14,7 +14,8 @@ class MaxBot:
     def getNameMeaning(self):
         return self.nameMeaning
     
-    def sendMessage(self, message, mce = None, elicitation = None, lastStepMessages = None, stepTwoUserResponse = None):
+    def sendMessage(self, properties: MaxBotProperties):
+        message, mce, elicitation, currentConcept, lastStepMessages, stepTwoUserResponse, secondConcept = properties.getProperties()
         if message == "" and len(lastStepMessages) == 0:
             return self._stepOne(mce, elicitation), Steps.STEP_ONE
         else:
@@ -23,33 +24,58 @@ class MaxBot:
             if len(lastStepMessages) > 0:
                 lastStep = lastStepMessages[-1].step
                 nextStep = getNextStep(lastStep)
-                print("Last step: ", lastStep)
-                if lastStep == Steps.STEP_ONE.value:
-                    return self._stepTwo(elicitation), nextStep
-                elif lastStep == Steps.STEP_TWO.value:
-                    return self._stepThree(elicitation, message, False), nextStep
-                elif lastStep == Steps.STEP_THREE_P1.value:
-                    return self._stepThree(elicitation, stepTwoUserResponse, True), nextStep
-                elif lastStep == Steps.STEP_THREE_P2.value:
-                    return "This step should not be reached", Steps.STEP_UNKNOWN
+                concept = currentConcept.name if currentConcept else elicitation.concept
+                # Belief Matrix Positioning
+                if nextStep == Steps.STEP_TWO.value:
+                    if lastStep == Steps.STEP_FOUR.value:
+                        concept = message
+                    return self._stepTwo(elicitation, concept), nextStep
+                elif nextStep == Steps.STEP_THREE_P1.value:
+                    return self._stepThree(elicitation, message, False, concept), nextStep
+                elif nextStep == Steps.STEP_THREE_P2.value:
+                    return self._stepThree(elicitation, stepTwoUserResponse, True, concept), nextStep
+                # IF only one concept is defined, define the second one
+                # IF second concept defined and has no relation_verb and relation_weight, ask for it
+                # IF second concept defined and has relation_verb and relation_weight, define the relation to this concept to another one
+                elif nextStep == Steps.STEP_CONDITION_ONE.value:
+                    if secondConcept is None:
+                        return self._stepFour(concept), Steps.STEP_FOUR.value
+                    else:
+                        if secondConcept.relation_verb is None and secondConcept.relation_weight is None:
+                            return self._stepFive(), Steps.STEP_FIVE.value
+                        else:
+                            return self._stepSix(), Steps.STEP_SIX.value
+                elif nextStep == Steps.STEP_FIVE.value:
+                    return self._stepFive(), nextStep
+                # Add logic to nextSteps: STEP_FIVE_P1, STEP_CONDITION_TWO, STEP_SEVEN
                 else:
                     return MaxResponses.unknown(), Steps.STEP_UNKNOWN
             else:
-                return "To beggin the chat, send an empty string as user_input", None
+                return "To begin the chat, send an empty string as user_input", None
             
 
     def _stepOne(self, mce, elicitation):
         response = MaxResponses.greeting(mce.agent.name.capitalize(), self.name, self.nameMeaning) + MaxResponses.explainingFocalQuestion(elicitation.focal_question)
         return response
     
-    def _stepTwo(self, elicitation):
-        response = MaxResponses.goingDeeper() + MaxResponses.makingInitialPosicioning(elicitation.agent, elicitation.concept, elicitation.domain)
+    def _stepTwo(self, elicitation, concept):
+        response = MaxResponses.goingDeeper(concept) + MaxResponses.makingInitialPositioning(elicitation.agent, concept, elicitation.domain)
         return response
     
-    def _stepThree(self, elicitation, initialPosicioning, firstQuestionAsked):
+    def _stepThree(self, elicitation, initialPositioning, firstQuestionAsked, concept):
         response = ""
-        if (initialPosicioning == AlternativeResponses.A.value and firstQuestionAsked == False) or (initialPosicioning == AlternativeResponses.B.value and firstQuestionAsked == True):
-            response = MaxResponses.determineComportamentalBelieve(elicitation.agent.capitalize(), elicitation.concept, elicitation.domain)
+        if (initialPositioning == AlternativeResponses.A.value and firstQuestionAsked == False) or (initialPositioning == AlternativeResponses.B.value and firstQuestionAsked == True):
+            response = MaxResponses.determineBehavioralBelieve(elicitation.agent.capitalize(), concept, elicitation.domain)
         else:
-            response = MaxResponses.normativeBelieve(elicitation.concept.capitalize(), elicitation.domain)
+            response = MaxResponses.normativeBelieve(concept.capitalize(), elicitation.domain)
         return response
+    
+    def _stepFour(self, concept):
+        response = MaxResponses.secondConcept(concept)
+        return response
+    
+    def _stepFive(self):
+        return "Step five not developed yet"
+    
+    def _stepSix(self):
+        return "Step six not developed yet"

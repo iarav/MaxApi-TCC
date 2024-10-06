@@ -22,3 +22,6 @@ class ChatHistoryRepository:
         chatHistory = crudChatHistory.getMessageHistoryByMCE(db, mce_id=mce.id)
         handleError(chatHistory)
         return chatHistory
+    
+    def getLastStepByCurrentStep(db: Session, mce_id: int, currentStep: str):
+        return crudChatHistory.getLastStepByCurrentStep(db, mce_id, currentStep)

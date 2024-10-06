@@ -1,9 +1,10 @@
 from pydantic import BaseModel
+from typing import Optional
 
 class ConceptBase(BaseModel):
     name: str
-    behavioral_belief: str = None
-    normative_belief: str = None
+    behavioral_belief: Optional[str] = None
+    normative_belief: Optional[str] = None
     mce_id: int
 
 class ConceptCreate(ConceptBase):
@@ -14,3 +15,10 @@ class Concept(ConceptBase):
 
     class Config:
         from_attributes = True
+
+class ConceptWithRelation(ConceptBase):
+    id: Optional[int] = None
+    relation_verb: Optional[str] = None
+    relation_weight: Optional[str] = None
+    concept1_id: Optional[int] = None
+    concept2_id: Optional[int] = None

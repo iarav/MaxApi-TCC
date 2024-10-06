@@ -10,6 +10,30 @@ def getConceptByMCEAndName(db: Session, mceId: int, name: str):
         return {"error": f"Error retrieving concept: {e}"}
     except Exception as e:
         return {"error": f"Unexpected error: {e}"}
+    
+def getSecondConceptByMCE(db: Session, mceId: int):
+    try:
+        concepts = db.query(Concept).filter(Concept.mce_id == mceId).order_by(Concept.id).all()
+        if len(concepts) > 1:
+            return concepts[1]
+        else:
+            return None
+    except SQLAlchemyError as e:
+        return {"error": f"Error retrieving second concept: {e}"}
+    except Exception as e:
+        return {"error": f"Unexpected error: {e}"}
+    
+def getMostRecentConceptByMCE(db: Session, mceId: int):
+    try:
+        concept = db.query(Concept).filter(Concept.mce_id == mceId).order_by(Concept.id.desc()).first()
+        if concept:
+            return concept
+        else:
+            return None
+    except SQLAlchemyError as e:
+        return {"error": f"Error retrieving most recent concept: {e}"}
+    except Exception as e:
+        return {"error": f"Unexpected error: {e}"}
 
 def createConcept(db: Session, concept: ConceptCreate):
     try:

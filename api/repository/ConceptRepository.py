@@ -8,4 +8,6 @@ class ConceptRepository:
         dbConcept = crudConcept.getConceptByMCEAndName(db, mceId=concept.mce_id, name=concept.name)
         if not dbConcept:
             dbConcept = crudConcept.createConcept(db, concept=concept)
-        return dbConcept
+            return dbConcept
+        else:
+            return None

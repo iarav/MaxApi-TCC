@@ -4,6 +4,7 @@ from ..schemas import ChatHistory as schemaChatHistory
 from ..schemas import MCE as schemaMCE
 from typing import List
 from ..helper.ErrorHandler import handleError
+from fastapi import HTTPException
 
 class ChatHistoryRepository:
     @staticmethod
@@ -25,3 +26,10 @@ class ChatHistoryRepository:
     
     def getLastStepByCurrentStep(db: Session, mce_id: int, currentStep: str):
         return crudChatHistory.getLastStepByCurrentStep(db, mce_id, currentStep)
+    
+    def getLastMessageByStepAndSender(db: Session, mce_id: int, step: str, sender: str):
+        messages = crudChatHistory.getMessagesByStepAndSender(db, mce_id, step, sender)
+        handleError(messages)
+        if not messages:
+            raise HTTPException(status_code=404, detail="No messages found on getLastMessageByStepAndSender")
+        return messages[-1]

@@ -9,6 +9,7 @@ class YesMaybeOrNotResponses(Enum):
 class AlternativeResponses(Enum):
     A = "A"
     B = "B"
+    C = "C"
 
 class ResponseProcessor():
     def __init__(self):

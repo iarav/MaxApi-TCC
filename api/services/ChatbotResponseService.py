@@ -15,7 +15,7 @@ from ..crud import ChatHistory as CrudChatHistory
 from ..crud import Concept as CrudConcept
 from ..crud import ConceptRelation as CrudConceptRelation
 from ..chatbot.MaxBot import MaxBot
-from ..chatbot.MaxElicitationSteps import Steps, getPreviousStep
+from ..chatbot.MaxElicitationSteps import Steps
 from ..chatbot.BeliefMatrix import getBeliefByAnswer
 from ..helper.ErrorHandler import handleException, handleError
 from ..chatbot.ResponseProcessor import ResponseProcessor, AlternativeResponses, YesMaybeOrNotResponses
@@ -84,6 +84,9 @@ def _handleSteps(db: Session, message: str, lastStepMessages: list, elicitation:
     error = False
     if lastStepMessages and len(lastStepMessages):
         lastStep = lastStepMessages[-1].step
+        
+        currentConceptRelationWithConcepts = _processCurrentConceptRelationAndConcepts(lastStep, db, mce)
+        
         if lastStep == Steps.STEP_TWO.value:
             processedMessage = ResponseProcessor().processAlternativeQuestion(processedMessage)
 
@@ -128,12 +131,9 @@ def _handleSteps(db: Session, message: str, lastStepMessages: list, elicitation:
                         concept1_id=secondConceptRelation.concept1_id,
                         concept2_id=secondConceptRelation.concept2_id
                     )
-                
-                currentConceptRelationWithConcepts = ConceptRelationRepository.getCurrentConceptRelationAndConceptsByMCE(db, mce.id)
         
         if lastStep == Steps.STEP_FIVE.value:
             relationWeight = None
-            currentConceptRelationWithConcepts = ConceptRelationRepository.getCurrentConceptRelationAndConceptsByMCE(db, mce.id)
             if not currentConceptRelationWithConcepts:
                 raise HTTPException(status_code=500, detail="Error finding concept relation")
             processedMessage = ResponseProcessor().processYesOrNotQuestion(processedMessage)
@@ -151,8 +151,55 @@ def _handleSteps(db: Session, message: str, lastStepMessages: list, elicitation:
                         relation_weight=relationWeight
                     )
                     ConceptRelationRepository.addRelationWeightToConceptRelation(db, conceptRelation)
+        
+        if lastStep == Steps.STEP_FIVE_P1.value:
+            processedMessage = ResponseProcessor().processAlternativeABCQuestion(processedMessage)
+        
+        if lastStep == Steps.STEP_EIGHT.value:
+            _createConcept(db, processedMessage, mce.id)
+            
+        if lastStep == Steps.STEP_SEVEN.value:
+            processedMessage = ResponseProcessor().processYesOrNotQuestion(processedMessage)
+            if isinstance(processedMessage, dict) and processedMessage.get("error"):
+                error = True
+            if not error:
+                concept1 = currentConcept
+                concept2Message = ChatHistoryRepository.getLastMessageByStepAndSender(db, mce.id, Steps.STEP_SIX.value, "agent")
+                concept2 = ConceptRepository.getConceptByName(db, mce.id, concept2Message.message)
+                if processedMessage == YesMaybeOrNotResponses.YES.value:
+                    _createConceptRelation(db, concept1, concept2)
+                elif processedMessage == YesMaybeOrNotResponses.NOT.value:
+                    _createConceptRelation(db, concept2, concept1)
+        
+        if lastStep == Steps.STEP_NINE.value:
+            concept = ConceptRepository.getConceptByName(db, mce.id, processedMessage)
+            if not concept:
+                processedMessage = {"error" : "Por favor, digite um conceito que já existe. (Digite somente o nome do conceito exatamente como foi digitado anteriormente)"}
+
+        if lastStep == Steps.STEP_NINE_P2.value:
+            concept1 = ConceptRepository.getConceptByName(db, mce.id, processedMessage)
+            concept2Message = ChatHistoryRepository.getLastMessageByStepAndSender(db, mce.id, Steps.STEP_NINE.value, "agent")
+            concept2 = ConceptRepository.getConceptByName(db, mce.id, concept2Message.message)
+            if not concept1:
+                processedMessage = {"error" : "Por favor, digite um conceito que já existe. (Digite somente o nome do conceito exatamente como foi digitado anteriormente)"}
+                error = True
+            if concept1.id == concept2.id:
+                processedMessage = {"error" : "Você não pode adicionar uma relação entre um conceito com ele mesmo."}
+                error = True
+            relation = ConceptRelationRepository.getConceptRelationByConceptIds(db, concept1.id, concept2.id)
+            if relation:
+                processedMessage = {"error" : "A relação entre esses conceitos já existe, escolha um conceito diferente."}
+                error = True
+            if not error:
+                _createConceptRelation(db, concept1, concept2)
             
     return processedMessage, secondConcept, processedStepTwoMessage, currentConceptRelationWithConcepts
+
+def _processCurrentConceptRelationAndConcepts(lastStep, db, mce):
+    currentConceptRelationWithConcepts = None
+    if lastStep == Steps.STEP_THREE_P2.value or lastStep == Steps.STEP_FOUR.value or lastStep == Steps.STEP_FIVE.value or lastStep == Steps.STEP_SEVEN.value or lastStep == Steps.STEP_NINE_P2.value:
+            currentConceptRelationWithConcepts = ConceptRelationRepository.getCurrentConceptRelationAndConceptsByMCE(db, mce.id)
+    return currentConceptRelationWithConcepts
 
 def _processStepThreeResponse(message: str, initialPositioning: str, concept: str, mceId: int, firstQuestionAsked: bool, db: Session) -> None:
     processedMessage = ResponseProcessor().processYesMaybeOrNotQuestion(message)

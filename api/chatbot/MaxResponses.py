@@ -71,6 +71,80 @@ class MaxResponses:
             f"O conceito {concept1} tem um impacto positivo no conceito {concept2}? (Responda com Sim ou Não)",
         ]
         return random.choice(options)
+    
+    def concludeConceptsRelationPositiveWeight(focalQuestion, concept1, concept2):
+        options = [
+            f"Muito bem! Quanto a sua pergunta inicial: '{focalQuestion}', em sua resposta você definiu que o conceito {concept1} intensifica o conceito {concept2}. Você pode aprofundar mais esse comentário adicionando mais um conceito e relacionando-o em sua argumentação. Agora irei te apresentar algumas opções de ações para prosseguirmos.\n",
+            f"Ótimo! Em relação a sua pergunta inicial: '{focalQuestion}', você afirmou que o conceito {concept1} tem um efeito positivo sobre o conceito {concept2}. Você pode adicionar mais um conceito e relacioná-lo com os demais. Agora, irei te apresentar algumas opções de ações para continuarmos.\n",
+            f"Excelente! Quanto a sua pergunta inicial: '{focalQuestion}', você disse que o conceito {concept1} tem um impacto positivo no conceito {concept2}. Você pode adicionar mais um conceito e relacioná-lo com os demais. Agora, irei te apresentar algumas opções de ações para seguirmos.\n"
+        ]
+        return random.choice(options)
+    
+    def concludeConceptsRelationNegativeWeight(focalQuestion, concept1, concept2):
+        options = [
+            f"Entendi! Em relação a sua pergunta inicial: '{focalQuestion}', você afirmou que o conceito {concept1} tem um efeito negativo sobre o conceito {concept2}. Você pode adicionar mais um conceito e relacioná-lo com os demais. Agora, irei te apresentar algumas opções de ações para continuarmos.\n",
+            f"Perfeito! Quanto a sua pergunta inicial: '{focalQuestion}', você disse que o conceito {concept1} não intensifica o conceito {concept2}. Você pode adicionar mais um conceito e relacioná-lo com os demais. Agora, irei te apresentar algumas opções de ações para prosseguirmos.\n",
+            f"Legal! Em relação a sua pergunta inicial: '{focalQuestion}', você afirmou que o conceito {concept1} não tem um impacto positivo no conceito {concept2}. Você pode adicionar mais um conceito e relacioná-lo com os demais. Agora, irei te apresentar algumas opções de ações para seguirmos.\n"
+        ]
+        return random.choice(options)
+    
+    def concludeConceptsRelationShowingOptions():
+        options = [
+            "Você deseja: (Digite A, B ou C) \nA) Adicionar outro conceito para ampliar sua argumentação. \nB) Incluir um relacionamento para melhorar sua argumentação. \nC) Concluir sua argumentação.",
+            "Você pode: (Digite A, B ou C) \nA) Adicionar mais um conceito para enriquecer sua argumentação. \nB) Inserir um relacionamento para aprimorar sua argumentação. \nC) Finalizar sua argumentação.",
+            "Escolha: (Digite A, B ou C) \nA) Adicionar um novo conceito para fortalecer sua argumentação. \nB) Inserir um relacionamento para aperfeiçoar sua argumentação. \nC) Concluir sua argumentação.",
+        ]
+        return random.choice(options)
+    
+    def addNewConcept():
+        options = [
+            "Escreva o conceito que amplia sua argumentação: (Escreva somente o nome do conceito)",
+            "Por favor, digite o nome do novo conceito que deseja adicionar: (Escreva somente o nome do conceito)",
+            "Digite o nome do novo conceito que deseja incluir: (Escreva somente o nome do conceito)",
+            "Insira o nome do novo conceito que deseja adicionar: (Escreva somente o nome do conceito)"
+        ]
+        return random.choice(options)
+    
+    def addRelationOfNewConceptToAnotherConcept(newConcept):
+        options = [
+            f"Quanto ao novo conceito {newConcept}, com qual argumento anteriormente incluído ele se relaciona? (Escreva somente o nome do conceito)",
+            f"Sobre o conceito {newConcept}, com qual conceito anteriormente mencionado ele se relaciona? (Digite somente o nome do conceito)",
+            f"Qual é a relação do novo conceito {newConcept} com um conceito anteriormente mencionado? (Escreva somente o nome do conceito)",
+            f"Com qual conceito anteriormente mencionado o novo conceito {newConcept} se relaciona? (Digite somente o nome do conceito)"
+        ]
+        return random.choice(options)
+    
+    def defineRelationDirection(concept1, concept2):
+        options = [
+            f"O conceito {concept1} influencia o conceito {concept2}? Se {concept1} for influenciado por {concept2} responda não. (Responda com Sim ou Não)",
+            f"O conceito {concept1} tem um efeito sobre o conceito {concept2}? Se o efeito for contrário, responda não. (Responda com Sim ou Não)",
+            f"O conceito {concept1} tem um impacto sobre o conceito {concept2}? Se o impacto for contrário, responda não. (Responda com Sim ou Não)",
+        ]
+        return random.choice(options)
+    
+    def createRelationBetweenConceptsFirstConcept():
+        options = [
+            f"Escolha o conceito causa, ou seja, o conceito que influencia o outro conceito da relação, entre os já adicionados. (Digite apenas o nome do conceito)",
+            f"Escolha o conceito que influencia o outro conceito da relação, entre os já adicionados. (Digite apenas o nome do conceito)",
+            "Dentre os conceitos já adicionados, escolha o conceito causa, ou seja, o conceito que influencia o outro conceito da relação. (Digite apenas o nome do conceito)",
+        ]
+        return random.choice(options)
+    
+    def createRelationBetweenConceptsSecondConcept(firstConcept):
+        options = [
+            f"Qual argumento existente é efeito do conceito {firstConcept}, ou seja, o conceito influenciado? (Digite apenas o nome do conceito)",
+            f"Qual conceito já adicionado é influenciado pelo conceito {firstConcept}? (Digite apenas o nome do conceito)",
+            "Qual conceito já incluído é afetado pelo conceito {firstConcept}? (Digite apenas o nome do conceito)",
+        ]
+        return random.choice(options)
+    
+    def endArgumentation():
+        options = [
+            "Sua argumentação foi concluída com sucesso! Obrigado por compartilhar seu conhecimento.",
+            "Sua argumentação foi finalizada com sucesso! Obrigado por compartilhar seu conhecimento.",
+            "Sua argumentação foi finalizada! Obrigado por compartilhar seu conhecimento."
+        ]
+        return random.choice(options)
 
     @staticmethod
     def unknown():

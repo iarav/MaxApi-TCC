@@ -28,7 +28,7 @@ class MaxBot:
                 concept = currentConcept.name if currentConcept else elicitation.concept
                 # Belief Matrix Positioning
                 if nextStep == Steps.STEP_TWO.value:
-                    if lastStep == Steps.STEP_FOUR.value:
+                    if lastStep == Steps.STEP_FOUR.value or lastStep == Steps.STEP_EIGHT.value:
                         concept = message
                     return self._stepTwo(elicitation, concept), nextStep
                 elif nextStep == Steps.STEP_THREE_P1.value:
@@ -43,19 +43,24 @@ class MaxBot:
                         return self._stepFour(concept), Steps.STEP_FOUR.value
                     else:
                         if secondConcept.relation_verb is None and secondConcept.relation_weight is None:   
-                            concept1 = None
-                            concept2 = None    
-                            if currentConceptRelationWithConcepts:
-                                concept1 = currentConceptRelationWithConcepts.concept1_name
-                                concept2 = currentConceptRelationWithConcepts.concept2_name
-                            else:
-                                raise HTTPException(status_code=500, detail="Error finding concept relation")
-                            return self._stepFive(concept1, concept2), Steps.STEP_FIVE.value
+                            return self._stepFive(currentConceptRelationWithConcepts), Steps.STEP_FIVE.value
                         else:
-                            return self._stepSix(), Steps.STEP_SIX.value
+                            return self._stepSix(concept), Steps.STEP_SIX.value
                 elif nextStep == Steps.STEP_FIVE.value:
-                    return self._stepFive(), nextStep
-                # Add logic to nextSteps: STEP_FIVE_P1, STEP_CONDITION_TWO, STEP_SEVEN
+                    return self._stepFive(currentConceptRelationWithConcepts), nextStep
+                elif nextStep == Steps.STEP_FIVE_P1.value:
+                    return self._stepFiveP1(elicitation.focal_question, currentConceptRelationWithConcepts), nextStep
+                elif nextStep == Steps.STEP_CONDITION_TWO.value:
+                    if message == AlternativeResponses.A.value:
+                        return self._stepEight(), Steps.STEP_EIGHT.value
+                    elif message == AlternativeResponses.B.value:
+                        return self._stepNine(), Steps.STEP_NINE.value
+                    elif message == AlternativeResponses.C.value:
+                        return self._stepEnd(), Steps.STEP_END.value
+                elif nextStep == Steps.STEP_SEVEN.value:
+                    return self._stepSeven(concept, message), nextStep # TODO: Implement this step
+                elif nextStep == Steps.STEP_NINE_P2.value:
+                    return self._stepNinePartTwo(message), Steps.STEP_NINE_P2.value
                 else:
                     return MaxResponses.unknown(), Steps.STEP_UNKNOWN
             else:
@@ -82,9 +87,49 @@ class MaxBot:
         response = MaxResponses.secondConcept(concept)
         return response
     
-    def _stepFive(self, concept1, concept2):
+    def _stepFive(self, currentConceptRelationWithConcepts):
+        concept1 = None
+        concept2 = None    
+        if currentConceptRelationWithConcepts:
+            concept1 = currentConceptRelationWithConcepts.concept1_name
+            concept2 = currentConceptRelationWithConcepts.concept2_name
+        else:
+            raise HTTPException(status_code=500, detail="Error finding concept relation")
         response = MaxResponses.defineRelationWeight(concept1, concept2)
         return response
     
-    def _stepSix(self):
-        return "Step six not developed yet"
+    def _stepFiveP1(self, focalQuestion, currentConceptRelationWithConcepts):
+        concept1 = None
+        concept2 = None    
+        relationWeight = None
+        response = ""
+        if currentConceptRelationWithConcepts:
+            concept1 = currentConceptRelationWithConcepts.concept1_name
+            concept2 = currentConceptRelationWithConcepts.concept2_name
+            relationWeight = currentConceptRelationWithConcepts.relation_weight
+        else:
+            raise HTTPException(status_code=500, detail="Error finding concept relation")
+        if relationWeight == "+":
+            response = MaxResponses.concludeConceptsRelationPositiveWeight(focalQuestion, concept1, concept2)
+        elif relationWeight == "-":
+            response = MaxResponses.concludeConceptsRelationNegativeWeight(focalQuestion, concept1, concept2)
+        response = response + MaxResponses.concludeConceptsRelationShowingOptions()
+        return response
+    
+    def _stepSix(self, newConcept):
+        return MaxResponses.addRelationOfNewConceptToAnotherConcept(newConcept)
+    
+    def _stepSeven(self, concept1, concept2):
+        return MaxResponses.defineRelationDirection(concept1, concept2)
+    
+    def _stepEight(self):
+        return MaxResponses.addNewConcept()
+    
+    def _stepNine(self):
+        return MaxResponses.createRelationBetweenConceptsFirstConcept()
+    
+    def _stepNinePartTwo(self, firstConcept):
+        return MaxResponses.createRelationBetweenConceptsSecondConcept(firstConcept)
+    
+    def _stepEnd(self):
+        return MaxResponses.endArgumentation()

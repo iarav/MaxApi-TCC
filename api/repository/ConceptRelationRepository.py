@@ -35,3 +35,7 @@ class ConceptRelationRepository:
     def addRelationWeightToConceptRelation(db: Session, conceptRelation: schemaConceptRelation.ConceptRelationCreate) -> schemaConceptRelation.ConceptRelation:
         dbConceptRelation = crudConceptRelation.editConceptRelation(db, conceptRelation=conceptRelation)
         return dbConceptRelation
+    
+    def getConceptRelationByConceptIds(db: Session, concept1_id: int, concept2_id: int) -> schemaConceptRelation.ConceptRelation:
+        dbConceptRelation = crudConceptRelation.getConceptRelationByConceptIds(db, concept1_id=concept1_id, concept2_id=concept2_id)
+        return dbConceptRelation

@@ -8,7 +8,7 @@ class Steps(Enum):
     STEP_THREE_P1 = "STEP_THREE_P1" # Determine behavioral or normative belief
     STEP_THREE_P2 = "STEP_THREE_P2" # Determine behavioral or normative belief
     STEP_FOUR = "STEP_FOUR" # Define the second concept
-    STEP_FIVE = "STEP_FIVE" # Define the relation_verb and relation_weight of the concept
+    STEP_FIVE = "STEP_FIVE" # Define the relation_weight of the concept
     STEP_FIVE_P1 = "STEP_FIVE_P1" # Question about what to do next
     STEP_SIX = "STEP_SIX" # Define the relation of a concept to another one
     STEP_SEVEN = "STEP_SEVEN" # Define the relation direction of the relation defined on the previous step

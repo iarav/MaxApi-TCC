@@ -42,7 +42,6 @@ CREATE TABLE Concept (
 CREATE TABLE Concept_Relation (
     concept1_id INT,
     concept2_id INT,
-    relation_verb VARCHAR(20),
     relation_weight CHAR(1),
     PRIMARY KEY (concept1_id, concept2_id),
     FOREIGN KEY (concept1_id) REFERENCES Concept(id),

@@ -20,7 +20,6 @@ class ConceptRelationRepository:
         conceptRelationWithConcepts = schemaConceptRelation.ConceptRelationWithConcepts(
             concept1_id=conceptRelation.concept1_id,
             concept2_id=conceptRelation.concept2_id,
-            relation_verb=conceptRelation.relation_verb,
             relation_weight=conceptRelation.relation_weight,
             concept1_name=concept1.name,
             concept2_name=concept2.name,

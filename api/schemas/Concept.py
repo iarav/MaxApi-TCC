@@ -18,7 +18,6 @@ class Concept(ConceptBase):
 
 class ConceptWithRelation(ConceptBase):
     id: Optional[int] = None
-    relation_verb: Optional[str] = None
     relation_weight: Optional[str] = None
     concept1_id: Optional[int] = None
     concept2_id: Optional[int] = None

@@ -39,7 +39,6 @@ def createConceptRelation(db: Session, conceptRelation: ConceptRelationCreate):
         dbConceptRelation = ConceptRelation(
             concept1_id=conceptRelation.concept1_id,
             concept2_id=conceptRelation.concept2_id,
-            relation_verb=conceptRelation.relation_verb,
             relation_weight=conceptRelation.relation_weight
         )
         db.add(dbConceptRelation)

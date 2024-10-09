@@ -126,7 +126,6 @@ def _handleSteps(db: Session, message: str, lastStepMessages: list, elicitation:
                         behavioral_belief=secondConceptData.behavioral_belief,
                         normative_belief=secondConceptData.normative_belief,
                         mce_id=secondConceptData.mce_id,
-                        relation_verb=secondConceptRelation.relation_verb,
                         relation_weight=secondConceptRelation.relation_weight,
                         concept1_id=secondConceptRelation.concept1_id,
                         concept2_id=secondConceptRelation.concept2_id
@@ -230,7 +229,6 @@ def _createConcept(db: Session, concept: str, mceId: int) -> None:
 
 def _createConceptRelation(db: Session, firstConcept, secondConcept) -> SchemaConceptRelation.ConceptRelation:
     conceptRelation = SchemaConceptRelation.ConceptRelationCreate(
-        relation_verb=None,
         relation_weight=None,
         concept1_id=firstConcept.id,
         concept2_id=secondConcept.id

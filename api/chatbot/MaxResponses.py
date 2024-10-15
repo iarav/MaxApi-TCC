@@ -40,27 +40,27 @@ class MaxResponses:
     @staticmethod
     def determineBehavioralBelieve(agent, concept, domain):
         options = [
-            f"{agent} considera que, por meio do/da {concept}, é possível obter resultados de {domain}? (Responda com Sim, Talvez ou Não)",
-            f"Na sua opinião, {agent} acredita que {concept} pode gerar resultados dentro do domínio {domain}? (Responda com Sim, Talvez ou Não)",
-            f"Você acha que o agente({agent}) acredita que o/a {concept} pode alcançar resultados de {domain}? (Responda Sim, Talvez ou Não)"
+            f"Continuado... {agent} considera que, por meio do/da {concept}, é possível obter resultados de {domain}? (Responda com Sim, Talvez ou Não)",
+            f"Muito bem, prosseguindo... Na sua opinião, {agent} acredita que {concept} pode gerar resultados dentro do domínio {domain}? (Responda com Sim, Talvez ou Não)",
+            f"Prosseguindo... Você acha que o agente({agent}) acredita que o/a {concept} pode alcançar resultados de {domain}? (Responda Sim, Talvez ou Não)"
         ]
         return random.choice(options)
 
     @staticmethod
     def normativeBelieve(concept, domain):
         options = [
-            f"{concept}, de alguma forma, modifica o estado atual de {domain}? (Responda com Sim, Talvez ou Não)",
-            f"O/A {concept} pode mudar o estado atual de {domain}? (Responda com Sim, Talvez ou Não)",
-            f"Você acha que {concept} tem o poder de alterar o estado atual do domínio {domain}? (Responda Sim, Talvez ou Não)"
+            f"Seguindo a diante, o(a) {concept}, de alguma forma, modifica o estado atual de {domain}? (Responda com Sim, Talvez ou Não)",
+            f"Continuando, O(A) {concept} pode mudar o estado atual de {domain}? (Responda com Sim, Talvez ou Não)",
+            f"Seguindo a diante, você acha que {concept} tem o poder de alterar o estado atual do domínio {domain}? (Responda Sim, Talvez ou Não)"
         ]
         return random.choice(options)
 
     @staticmethod
     def secondConcept(concept):
         options = [
-            f"Agora, vamos para o segundo conceito. Na sua opinião o que estimula ou desestimula o/a {concept}?",
-            f"Vamos agora para o próximo conceito. O que você acredita que motiva ou desmotiva o/a {concept}?",
-            f"Seguindo para o próximo conceito: o que, na sua visão, incentiva ou desencoraja o/a {concept}?"
+            f"Perfeito! Agora, vamos para o segundo conceito. Na sua opinião o que estimula ou desestimula o/a {concept}?",
+            f"Ótimo! Vamos agora para o próximo conceito. O que você acredita que motiva ou desmotiva o/a {concept}?",
+            f"Muito bem! Seguindo para o próximo conceito: o que, na sua visão, incentiva ou desencoraja o/a {concept}?"
         ]
         return random.choice(options)
     

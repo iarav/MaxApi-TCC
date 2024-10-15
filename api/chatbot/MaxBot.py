@@ -35,9 +35,6 @@ class MaxBot:
                     return self._stepThree(elicitation, message, False, concept), nextStep
                 elif nextStep == Steps.STEP_THREE_P2.value:
                     return self._stepThree(elicitation, stepTwoUserResponse, True, concept), nextStep
-                # IF only one concept is defined, define the second one
-                # IF second concept defined and has no relation_weight, ask for it
-                # IF second concept defined and has relation_weight, define the relation to this concept to another one
                 elif nextStep == Steps.STEP_CONDITION_ONE.value:
                     if secondConcept is None:
                         return self._stepFour(concept), Steps.STEP_FOUR.value
@@ -58,7 +55,7 @@ class MaxBot:
                     elif message == AlternativeResponses.C.value:
                         return self._stepEnd(), Steps.STEP_END.value
                 elif nextStep == Steps.STEP_SEVEN.value:
-                    return self._stepSeven(concept, message), nextStep # TODO: Implement this step
+                    return self._stepSeven(concept, message), nextStep
                 elif nextStep == Steps.STEP_NINE_P2.value:
                     return self._stepNinePartTwo(message), Steps.STEP_NINE_P2.value
                 else:

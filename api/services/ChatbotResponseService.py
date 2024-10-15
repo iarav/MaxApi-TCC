@@ -228,6 +228,8 @@ def _createConcept(db: Session, concept: str, mceId: int) -> None:
     return conceptObj
 
 def _createConceptRelation(db: Session, firstConcept, secondConcept) -> SchemaConceptRelation.ConceptRelation:
+    if firstConcept is None or secondConcept is None:
+        raise HTTPException(status_code=500, detail="Error creating concept relation")
     conceptRelation = SchemaConceptRelation.ConceptRelationCreate(
         relation_weight=None,
         concept1_id=firstConcept.id,

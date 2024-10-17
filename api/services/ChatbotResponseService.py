@@ -32,7 +32,7 @@ def generateChatbotResponseByUserInput(userData: SchemaChat.CreateUserInput, db:
 
         _registerChatHistory(userInput, chatbotResponse, step, db=db, mceId=mce.id)
 
-        return {"message": "Success", "response": chatbotResponse}
+        return {"message": "Success", "response": chatbotResponse, "step": step}
 
     except Exception as e:
         handleException(e)

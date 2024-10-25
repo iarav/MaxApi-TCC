@@ -5,7 +5,7 @@ from ..schemas.Concept import ConceptCreate
 
 def getConceptByMCEAndName(db: Session, mceId: int, name: str):
     try:
-        return db.query(Concept).filter(Concept.mce_id == mceId, Concept.name == name).first()
+        return db.query(Concept).filter(Concept.mce_id == mceId, Concept.name == name.lower()).first()
     except SQLAlchemyError as e:
         return {"error": f"Error retrieving concept: {e}"}
     except Exception as e:

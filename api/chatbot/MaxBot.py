@@ -74,10 +74,14 @@ class MaxBot:
     
     def _stepThree(self, elicitation, initialPositioning, firstQuestionAsked, concept):
         response = ""
-        if (initialPositioning == AlternativeResponses.A.value and firstQuestionAsked == False) or (initialPositioning == AlternativeResponses.B.value and firstQuestionAsked == True):
-            response = MaxResponses.determineBehavioralBelieve(elicitation.agent.capitalize(), concept, elicitation.domain)
+        if firstQuestionAsked == False:
+            response = MaxResponses.incrementBelieveQuestionsFirstQuestion()
         else:
-            response = MaxResponses.normativeBelieve(concept.capitalize(), elicitation.domain)
+            response = MaxResponses.incrementBelieveQuestionsSecondQuestion()
+        if (initialPositioning == AlternativeResponses.A.value and firstQuestionAsked == False) or (initialPositioning == AlternativeResponses.B.value and firstQuestionAsked == True):
+            response += MaxResponses.determineBehavioralBelieve(elicitation.agent.lower(), concept, elicitation.domain)
+        else:
+            response += MaxResponses.normativeBelieve(concept.lower(), elicitation.domain)
         return response
     
     def _stepFour(self, concept):
@@ -107,7 +111,7 @@ class MaxBot:
         else:
             raise HTTPException(status_code=500, detail="Error finding concept relation")
         if relationWeight == "+":
-            response = MaxResponses.concludeConceptsRelationPositiveWeight(focalQuestion, concept1, concept2)
+            response = MaxResponses.concludeConceptsRelationPositiveWeight(focalQuestion, concept1, concept2) 
         elif relationWeight == "-":
             response = MaxResponses.concludeConceptsRelationNegativeWeight(focalQuestion, concept1, concept2)
         response = response + MaxResponses.concludeConceptsRelationShowingOptions()

@@ -143,13 +143,18 @@ def _handleSteps(db: Session, message: str, lastStepMessages: list, elicitation:
                     relationWeight = "+"
                 elif processedMessage == YesMaybeOrNotResponses.NOT.value:
                     relationWeight = "-"
-                if relationWeight:
-                    conceptRelation = SchemaConceptRelation.ConceptRelationCreate(
-                        concept1_id=currentConceptRelationWithConcepts.concept1_id,
-                        concept2_id=currentConceptRelationWithConcepts.concept2_id,
-                        relation_weight=relationWeight
-                    )
-                    ConceptRelationRepository.addRelationWeightToConceptRelation(db, conceptRelation)
+                else:
+                    processedMessage = {"error" : "Por favor, responda com sim ou não."}
+                    error = True
+                if not error:
+                    if relationWeight:
+                        conceptRelation = SchemaConceptRelation.ConceptRelationCreate(
+                            concept1_id=currentConceptRelationWithConcepts.concept1_id,
+                            concept2_id=currentConceptRelationWithConcepts.concept2_id,
+                            relation_weight=relationWeight
+                        )
+                        conceptRelation = ConceptRelationRepository.addRelationWeightToConceptRelation(db, conceptRelation)
+                        handleError(conceptRelation)
         
         if lastStep == Steps.STEP_FIVE_P1.value:
             processedMessage = ResponseProcessor().processAlternativeABCQuestion(processedMessage)
@@ -185,28 +190,32 @@ def _handleSteps(db: Session, message: str, lastStepMessages: list, elicitation:
                 processedMessage = {"error" : "Por favor, digite um conceito que já existe. (Digite somente o nome do conceito exatamente como foi digitado anteriormente)"}
 
         if lastStep == Steps.STEP_NINE_P2.value:
-            concept1 = ConceptRepository.getConceptByName(db, mce.id, processedMessage)
-            concept2Message = ChatHistoryRepository.getLastMessageByStepAndSender(db, mce.id, Steps.STEP_NINE.value, "agent")
-            concept2 = ConceptRepository.getConceptByName(db, mce.id, concept2Message.message)
-            if not concept1:
-                processedMessage = {"error" : "Por favor, digite um conceito que já existe. (Digite somente o nome do conceito exatamente como foi digitado anteriormente)"}
-                error = True
-            if concept1.id == concept2.id:
-                processedMessage = {"error" : "Você não pode adicionar uma relação entre um conceito com ele mesmo."}
-                error = True
-            relation = ConceptRelationRepository.getConceptRelationByConceptIds(db, concept1.id, concept2.id)
-            if relation:
-                processedMessage = {"error" : "A relação entre esses conceitos já existe, escolha um conceito diferente."}
-                error = True
+            concept1Message = ChatHistoryRepository.getLastMessageByStepAndSender(db, mce.id, Steps.STEP_NINE.value, "agent")
+            concept1 = ConceptRepository.getConceptByName(db, mce.id, concept1Message.message)
+            concept2 = ConceptRepository.getConceptByName(db, mce.id, processedMessage)
+            if concept1 is None:
+                    processedMessage = {"error" : "Conceito digitado não foi encontrado. Por favor, digite novamente."}
+                    error = True
             if not error:
-                _createConceptRelation(db, concept1, concept2)
-                currentConceptRelationWithConcepts = SchemaConceptRelation.ConceptRelationWithConcepts(
-                    concept1_id=concept2.id,
-                    concept2_id=concept1.id,
-                    concept1_name=concept2.name,
-                    concept2_name=concept1.name,
-                    mce_id=concept1.mce_id
-                )
+                if not concept2:
+                    processedMessage = {"error" : "Por favor, digite um conceito que já existe. (Digite somente o nome do conceito exatamente como foi digitado anteriormente)"}
+                    error = True
+                if concept1.id == concept2.id:
+                    processedMessage = {"error" : "Você não pode adicionar uma relação entre um conceito com ele mesmo."}
+                    error = True
+                relation = ConceptRelationRepository.getConceptRelationByConceptIds(db, concept1.id, concept2.id)
+                if relation:
+                    processedMessage = {"error" : "A relação entre esses conceitos já existe, escolha um conceito diferente."}
+                    error = True
+                if not error:
+                    _createConceptRelation(db, concept1, concept2)
+                    currentConceptRelationWithConcepts = SchemaConceptRelation.ConceptRelationWithConcepts(
+                        concept1_id=concept1.id,
+                        concept2_id=concept2.id,
+                        concept1_name=concept1.name,
+                        concept2_name=concept2.name,
+                        mce_id=concept1.mce_id
+                    )
         
         if not error:        
             currentConceptRelationWithConcepts = _processCurrentConceptRelationAndConcepts(lastStep, db, mce, currentConceptRelationWithConcepts)        

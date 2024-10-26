@@ -1,10 +1,12 @@
 from pydantic import BaseModel
 from typing import Optional
+from datetime import datetime
 
 class ConceptRelationBase(BaseModel):
     concept1_id: int
     concept2_id: int
     relation_weight: Optional[str] = None
+    creation_date: datetime = datetime.now()
 
 class ConceptRelationCreate(ConceptRelationBase):
     pass

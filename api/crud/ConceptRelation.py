@@ -3,6 +3,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from ..models.ConceptRelation import ConceptRelation
 from ..models.Concept import Concept
 from ..schemas.ConceptRelation import ConceptRelationCreate
+from datetime import datetime
 
 def getConceptRelationByConceptIds(db: Session, concept1_id: int = None, concept2_id: int = None):
     try:
@@ -27,7 +28,7 @@ def getMostRecentConceptRelationByMCE(db: Session, mce_id: int):
             join(concept1, ConceptRelation.concept1_id == concept1.id).\
             join(concept2, ConceptRelation.concept2_id == concept2.id).\
             filter(concept1.mce_id == mce_id).\
-            order_by(concept1.id.desc(), concept2.id.desc()).\
+            order_by(ConceptRelation.creation_date.desc()).\
             first()
     except SQLAlchemyError as e:
         return {"error": f"Error retrieving concept relation: {e}"}
@@ -39,7 +40,8 @@ def createConceptRelation(db: Session, conceptRelation: ConceptRelationCreate):
         dbConceptRelation = ConceptRelation(
             concept1_id=conceptRelation.concept1_id,
             concept2_id=conceptRelation.concept2_id,
-            relation_weight=conceptRelation.relation_weight
+            relation_weight=conceptRelation.relation_weight,
+            creation_date = datetime.now()
         )
         db.add(dbConceptRelation)
         db.commit()

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, ForeignKey, String, CHAR
+from sqlalchemy import Column, Integer, ForeignKey, DateTime, CHAR
 from ..db import Base
 
 class ConceptRelation(Base):
@@ -6,3 +6,4 @@ class ConceptRelation(Base):
     concept1_id = Column(Integer, ForeignKey("concept.id"), primary_key=True)
     concept2_id = Column(Integer, ForeignKey("concept.id"), primary_key=True)
     relation_weight = Column(CHAR, nullable=True)
+    creation_date = Column(DateTime, nullable=False)

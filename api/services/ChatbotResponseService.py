@@ -32,7 +32,7 @@ def generateChatbotResponseByUserInput(userData: SchemaChat.CreateUserInput, db:
 
         _registerChatHistory(userInput, chatbotResponse, step, db=db, mceId=mce.id)
 
-        return {"message": "Success", "response": chatbotResponse}
+        return {"message": "Success", "response": chatbotResponse, "step": step}
 
     except Exception as e:
         handleException(e)
@@ -82,7 +82,7 @@ def _handleSteps(db: Session, message: str, lastStepMessages: list, elicitation:
     processedStepTwoMessage = None
     currentConceptRelationWithConcepts = None
     error = False
-    if lastStepMessages and len(lastStepMessages):
+    if lastStepMessages and len(lastStepMessages) > 0:
         lastStep = lastStepMessages[-1].step
         
         currentConceptRelationWithConcepts = _processCurrentConceptRelationAndConcepts(lastStep, db, mce)
@@ -157,6 +157,11 @@ def _handleSteps(db: Session, message: str, lastStepMessages: list, elicitation:
         if lastStep == Steps.STEP_EIGHT.value:
             _createConcept(db, processedMessage, mce.id)
             
+        if lastStep == Steps.STEP_SIX.value:
+            concept = ConceptRepository.getConceptByName(db, mce.id, processedMessage)
+            if concept is None:
+                processedMessage = {"error" : "Conceito digitado não foi encontrado. Por favor, digite novamente."}
+            
         if lastStep == Steps.STEP_SEVEN.value:
             processedMessage = ResponseProcessor().processYesOrNotQuestion(processedMessage)
             if isinstance(processedMessage, dict) and processedMessage.get("error"):
@@ -165,10 +170,14 @@ def _handleSteps(db: Session, message: str, lastStepMessages: list, elicitation:
                 concept1 = currentConcept
                 concept2Message = ChatHistoryRepository.getLastMessageByStepAndSender(db, mce.id, Steps.STEP_SIX.value, "agent")
                 concept2 = ConceptRepository.getConceptByName(db, mce.id, concept2Message.message)
+                if concept2 is None:
+                    processedMessage = {"error" : "Conceito digitado não foi encontrado. Por favor, digite novamente."}
+                    error = True
                 if processedMessage == YesMaybeOrNotResponses.YES.value:
                     _createConceptRelation(db, concept1, concept2)
                 elif processedMessage == YesMaybeOrNotResponses.NOT.value:
                     _createConceptRelation(db, concept2, concept1)
+                currentConceptRelationWithConcepts = _processCurrentConceptRelationAndConcepts(lastStep, db, mce)
         
         if lastStep == Steps.STEP_NINE.value:
             concept = ConceptRepository.getConceptByName(db, mce.id, processedMessage)
@@ -191,13 +200,22 @@ def _handleSteps(db: Session, message: str, lastStepMessages: list, elicitation:
                 error = True
             if not error:
                 _createConceptRelation(db, concept1, concept2)
-            
+                currentConceptRelationWithConcepts = SchemaConceptRelation.ConceptRelationWithConcepts(
+                    concept1_id=concept2.id,
+                    concept2_id=concept1.id,
+                    concept1_name=concept2.name,
+                    concept2_name=concept1.name,
+                    mce_id=concept1.mce_id
+                )
+        
+        if not error:        
+            currentConceptRelationWithConcepts = _processCurrentConceptRelationAndConcepts(lastStep, db, mce, currentConceptRelationWithConcepts)        
+    
     return processedMessage, secondConcept, processedStepTwoMessage, currentConceptRelationWithConcepts
 
-def _processCurrentConceptRelationAndConcepts(lastStep, db, mce):
-    currentConceptRelationWithConcepts = None
-    if lastStep == Steps.STEP_THREE_P2.value or lastStep == Steps.STEP_FOUR.value or lastStep == Steps.STEP_FIVE.value or lastStep == Steps.STEP_SEVEN.value or lastStep == Steps.STEP_NINE_P2.value:
-            currentConceptRelationWithConcepts = ConceptRelationRepository.getCurrentConceptRelationAndConceptsByMCE(db, mce.id)
+def _processCurrentConceptRelationAndConcepts(lastStep, db, mce, currentConceptRelationWithConcepts=None):
+    if lastStep == Steps.STEP_THREE_P2.value or lastStep == Steps.STEP_FOUR.value or lastStep == Steps.STEP_FIVE.value or lastStep == Steps.STEP_SEVEN.value:
+        currentConceptRelationWithConcepts = ConceptRelationRepository.getCurrentConceptRelationAndConceptsByMCE(db, mce.id)
     return currentConceptRelationWithConcepts
 
 def _processStepThreeResponse(message: str, initialPositioning: str, concept: str, mceId: int, firstQuestionAsked: bool, db: Session) -> None:
@@ -228,6 +246,8 @@ def _createConcept(db: Session, concept: str, mceId: int) -> None:
     return conceptObj
 
 def _createConceptRelation(db: Session, firstConcept, secondConcept) -> SchemaConceptRelation.ConceptRelation:
+    if firstConcept is None or secondConcept is None:
+        raise HTTPException(status_code=500, detail="Error creating concept relation")
     conceptRelation = SchemaConceptRelation.ConceptRelationCreate(
         relation_weight=None,
         concept1_id=firstConcept.id,

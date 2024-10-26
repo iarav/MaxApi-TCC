@@ -58,17 +58,17 @@ class MaxResponses:
     @staticmethod
     def secondConcept(concept):
         options = [
-            f"Agora, vamos para o segundo conceito. Na sua opinião o que estimula ou desestimula o/a {concept}?",
-            f"Vamos agora para o próximo conceito. O que você acredita que motiva ou desmotiva o/a {concept}?",
-            f"Seguindo para o próximo conceito: o que, na sua visão, incentiva ou desencoraja o/a {concept}?"
+            f"Agora, vamos para o segundo conceito. Na sua opinião o que estimula ou desestimula o/a {concept}? (Escreva somente o conceito)",
+            f"Vamos agora para o próximo conceito. O que você acredita que motiva ou desmotiva o/a {concept}? (Escreva somente o conceito)",
+            f"Seguindo para o próximo conceito: o que, na sua visão, incentiva ou desencoraja o/a {concept}? (Escreva somente o conceito)"
         ]
         return random.choice(options)
     
     def defineRelationWeight(concept1, concept2):
         options = [
-            f"O conceito {concept1} estimula ou intensifica o conceito {concept2}? Se ele desistimular, responda não. (Responda com Sim ou Não)",
-            f"O conceito {concept1} tem um efeito positivo sobre o conceito {concept2}? (Responda com Sim ou Não)",
-            f"O conceito {concept1} tem um impacto positivo no conceito {concept2}? (Responda com Sim ou Não)",
+            f"Perfeito! Prosseguindo, o conceito {concept1} estimula ou intensifica o conceito {concept2}? Se ele desistimular, responda não. (Responda com Sim ou Não)",
+            f"Muito bem! Continuando, o conceito {concept1} tem um efeito positivo sobre o conceito {concept2}? (Responda com Sim ou Não)",
+            f"Certo, e o conceito {concept1} tem um impacto positivo no conceito {concept2}? (Responda com Sim ou Não)",
         ]
         return random.choice(options)
     

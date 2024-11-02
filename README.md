@@ -45,6 +45,11 @@ Para realizar testes apenas da api, sem estar integrando com o sistema WEB, est�
 
 Para utilizar, também é necessário um banco de dados PostgreSQL configurado com o nome `max_chatbot`.
 
+## Pré-requisitos
+- Python 3.9 ou superior
+- PostgreSQL
+- Acesso ao terminal (ou linha de comando no Windows)
+
 <br>
 <br>
 

@@ -1,5 +1,7 @@
-# MaxApi-TCC
-API em Python para o projeto MAX TCC
+# MaxApi - TCC
+Este repositório visa desenvolver a API de uma solução tecnológica para a elicitação do conhecimento, que será composto por um sistema web, que integrará essa API em Python e um chatbot que também está presente neste repositório. A solução é voltada para o armazenamento dos dados em mapas conceituais estendidos (MCE), uma abordagem que permite organizar e recuperar as informações de maneira eficiente.<br>
+A elicitação do conhecimento ocorre de forma automatizada por meio de perguntas estruturadas conduzidas pelo chatbot. Este processo permite que o chatbot guie o usuário através de uma série de perguntas, coletando informações relevantes para o sistema de maneira organizada. <br>
+O chatbot foi denominado de `MAX` - `Management and Acquisition eXpert` e foi desenvolvido para o Trabalho de Conclusão de Curso (TCC).
 
 <br>
 <br>
@@ -26,12 +28,22 @@ API em Python para o projeto MAX TCC
 <br>
 
 ## Descrição
-Esta API é a base do sistema do projeto MAX TCC. Ela contém os endpoints necessários para o sistema web e toda a lógica do chatbot. Para utilizar, é necessário um banco de dados PostgreSQL configurado com o nome `max_chatbot`.
+Esta API é a base do sistema do projeto MAX TCC. Ela contém os endpoints necessários para o sistema web e toda a lógica do chatbot. 
 
-## Pré-requisitos
-- Python 3.11.4 ou superior
-- PostgreSQL
-- Acesso ao terminal (ou linha de comando no Windows)
+Os endpoints presentes nessa API são:
+
+- GET_ALL_FOCAL_QUESTIONS
+- GET_FOCAL_QUESTION
+- SIGN_IN
+- USER_INPUT
+- CREATE_CHAT
+- GET_ALL_CHAT_HISTORY
+
+Sendo que para realizar o processo de conversa com o chatbot, será através do endpoint USER_INPUT.
+
+Para realizar testes apenas da api, sem estar integrando com o sistema WEB, está disponível uma collection do Postman no repositório, nomeada `MAX - Chatbot - TCC.postman_collection.json`.
+
+Para utilizar, também é necessário um banco de dados PostgreSQL configurado com o nome `max_chatbot`.
 
 <br>
 <br>

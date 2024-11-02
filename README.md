@@ -144,6 +144,12 @@ cd MaxApi-TCC
    ```bash
    python -m venv venv
    ```
+   
+   ou no linux:
+   
+   ```bash
+   python3 -m venv venv
+   ```
 
 2. Ative o ambiente virtual:
    - **No Windows**:
@@ -156,17 +162,23 @@ cd MaxApi-TCC
      ```
 
 ### Passo 3: Instalar Dependências
-Instale as dependências do projeto usando o arquivo `requirements.txt`:
-```bash
-pip install -r requirements.txt
-```
+Instale as dependências do projeto rodando o comando abaixo:
 
-#### Dependências Alternativas
-Se ocorrerem problemas com o `requirements.txt`, instale manualmente:
-```bash
-pip install python-dotenv uvicorn fastapi sqlalchemy psycopg2 spacy
-python -m spacy download pt_core_news_sm
-```
+   - **No Windows**:
+  ```bash
+  pip install python-dotenv uvicorn fastapi sqlalchemy psycopg2 spacy
+  python -m spacy download pt_core_news_sm
+  ```
+   - **No Unix/macOS**:
+   No unix, pode-se tentar rodar o comando abaixo:
+  ```bash
+  ./init_dependencies.sh
+  ```
+  Se ocorrer algum problema tente:
+  ```bash
+  pip install python-dotenv uvicorn fastapi sqlalchemy psycopg2-binary spacy
+  python3 -m spacy download pt_core_news_sm
+  ```
 
 ### Passo 4: Configuração do Banco de Dados
 1. **Rode o script de criação de tabelas**: Execute o script SQL localizado em `api/db/db_script` para criar as tabelas necessárias.
